@@ -1,4 +1,4 @@
-package co.chatchain.commons.messages;
+package co.chatchain.commons;
 
 import co.chatchain.commons.messages.interfaces.message.IClientEventMessage;
 import co.chatchain.commons.messages.interfaces.message.IGenericMessage;

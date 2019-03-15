@@ -1,4 +1,4 @@
-package co.chatchain.commons.messages;
+package co.chatchain.commons;
 
 import org.json.JSONObject;
 
