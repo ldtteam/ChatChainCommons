@@ -4,7 +4,7 @@ plugins {
 }
 
 group 'co.chatchain.commons'
-version '1.0'
+version = System.getenv()['BUILD_NUMBER'] != null ? System.getenv()['BUILD_NUMBER'] : System.getenv()['TRAVIS_BUILD_NUMBER']
 
 sourceCompatibility = 1.8
 
@@ -22,6 +22,15 @@ dependencies {
     compile 'com.microsoft.signalr:signalr:1.0.2'
 }
 
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
 shadowJar {
     from sourceSets.main.output
+}
+
+artifacts {
+    archives sourcesJar
 }
