@@ -18,6 +18,13 @@ public class Group implements IGroup
         this.groupId = groupId;
     }
 
+    public Group(final String groupId, final String groupName, final String ownerId)
+    {
+        this.groupId = groupId;
+        this.ownerId = ownerId;
+        this.groupName = groupName;
+    }
+
     @Override
     public String getGroupName()
     {
