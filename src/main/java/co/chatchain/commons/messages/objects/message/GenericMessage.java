@@ -1,20 +1,20 @@
 package co.chatchain.commons.messages.objects.message;
 
-import co.chatchain.commons.messages.interfaces.IClient;
-import co.chatchain.commons.messages.interfaces.IGroup;
-import co.chatchain.commons.messages.interfaces.IUser;
 import co.chatchain.commons.messages.interfaces.message.IGenericMessage;
+import co.chatchain.commons.messages.objects.Client;
+import co.chatchain.commons.messages.objects.Group;
+import co.chatchain.commons.messages.objects.User;
 
-public class GenericMessage<T1 extends IGroup, T2 extends IClient, T3 extends IUser> implements IGenericMessage<T1, T2, T3>
+public class GenericMessage implements IGenericMessage<Group, Client, User>
 {
 
-    private T1 group;
-    private T2 client;
-    private T3 user;
+    private Group group;
+    private Client client;
+    private User user;
     private String message;
     private boolean sendToSelf;
 
-    public GenericMessage(final T1 group, final T3 user, final String message, final boolean sendToSelf)
+    public GenericMessage(final Group group, final User user, final String message, final boolean sendToSelf)
     {
         this.group = group;
         this.user = user;
@@ -22,20 +22,25 @@ public class GenericMessage<T1 extends IGroup, T2 extends IClient, T3 extends IU
         this.sendToSelf = sendToSelf;
     }
 
+    public GenericMessage(final Group group, final User user, final String message)
+    {
+        this(group, user, message, false);
+    }
+
     @Override
-    public T1 getGroup()
+    public Group getGroup()
     {
         return this.group;
     }
 
     @Override
-    public T2 getSendingClient()
+    public Client getSendingClient()
     {
         return this.client;
     }
 
     @Override
-    public T3 getUser()
+    public User getUser()
     {
         return this.user;
     }

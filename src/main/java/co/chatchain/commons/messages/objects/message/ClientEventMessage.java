@@ -1,19 +1,23 @@
 package co.chatchain.commons.messages.objects.message;
 
-import co.chatchain.commons.messages.interfaces.IClient;
 import co.chatchain.commons.messages.interfaces.message.IClientEventMessage;
+import co.chatchain.commons.messages.objects.Client;
 
-public class ClientEventMessage<T1 extends IClient> implements IClientEventMessage<T1>
+public class ClientEventMessage implements IClientEventMessage<Client>
 {
     private String event;
-    private T1 client;
+    private Client client;
     private boolean sendToSelf;
 
-    public ClientEventMessage(final String event, final T1 client, final Boolean sendToSelf)
+    public ClientEventMessage(final String event, final Boolean sendToSelf)
     {
         this.event = event;
-        this.client = client;
         this.sendToSelf = sendToSelf;
+    }
+
+    public ClientEventMessage(final String event)
+    {
+        this(event, false);
     }
 
     @Override
@@ -23,7 +27,7 @@ public class ClientEventMessage<T1 extends IClient> implements IClientEventMessa
     }
 
     @Override
-    public T1 getClient()
+    public Client getClient()
     {
         return this.client;
     }

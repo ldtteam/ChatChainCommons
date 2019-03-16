@@ -1,16 +1,16 @@
 package co.chatchain.commons.messages.objects.message;
 
-import co.chatchain.commons.messages.interfaces.IGroup;
 import co.chatchain.commons.messages.interfaces.message.IGetGroupsResponse;
+import co.chatchain.commons.messages.objects.Group;
 
 import java.util.List;
 
-public class GetGroupsResponse<T1 extends IGroup> implements IGetGroupsResponse<T1>
+public class GetGroupsResponse implements IGetGroupsResponse<Group>
 {
-    private List<T1> groups;
+    private List<Group> groups;
 
     @Override
-    public List<T1> getGroups()
+    public List<Group> getGroups()
     {
         return this.groups;
     }
