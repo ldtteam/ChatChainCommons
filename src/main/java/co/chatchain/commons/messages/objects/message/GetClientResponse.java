@@ -1,14 +1,14 @@
 package co.chatchain.commons.messages.objects.message;
 
-import co.chatchain.commons.messages.interfaces.IClient;
 import co.chatchain.commons.messages.interfaces.message.IGetClientResponse;
+import co.chatchain.commons.messages.objects.Client;
 
-public class GetClientResponse<T1 extends IClient> implements IGetClientResponse<T1>
+public class GetClientResponse implements IGetClientResponse<Client>
 {
-    private T1 client;
+    private Client client;
 
     @Override
-    public T1 getClient()
+    public Client getClient()
     {
         return this.client;
     }
