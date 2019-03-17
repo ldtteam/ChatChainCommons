@@ -6,7 +6,7 @@ import co.chatchain.commons.messages.objects.Client;
 public class ClientEventMessage implements IClientEventMessage<Client>
 {
     private String event;
-    private Client client;
+    private Client sendingClient;
     private boolean sendToSelf;
 
     public ClientEventMessage(final String event, final Boolean sendToSelf)
@@ -29,7 +29,7 @@ public class ClientEventMessage implements IClientEventMessage<Client>
     @Override
     public Client getClient()
     {
-        return this.client;
+        return this.sendingClient;
     }
 
     @Override

@@ -9,7 +9,7 @@ public class GenericMessage implements IGenericMessage<Group, Client, User>
 {
 
     private Group group;
-    private Client client;
+    private Client sendingClient;
     private User user;
     private String message;
     private boolean sendToSelf;
@@ -36,7 +36,7 @@ public class GenericMessage implements IGenericMessage<Group, Client, User>
     @Override
     public Client getSendingClient()
     {
-        return this.client;
+        return this.sendingClient;
     }
 
     @Override
