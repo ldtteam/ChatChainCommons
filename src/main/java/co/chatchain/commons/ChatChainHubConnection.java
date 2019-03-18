@@ -1,9 +1,7 @@
 package co.chatchain.commons;
 
-import co.chatchain.commons.messages.interfaces.message.IClientEventMessage;
-import co.chatchain.commons.messages.interfaces.message.IGenericMessage;
-import co.chatchain.commons.messages.interfaces.message.IGetClientResponse;
-import co.chatchain.commons.messages.interfaces.message.IGetGroupsResponse;
+import co.chatchain.commons.messages.interfaces.IUser;
+import co.chatchain.commons.messages.interfaces.message.*;
 import com.microsoft.signalr.Action1;
 import com.microsoft.signalr.HubConnection;
 import com.microsoft.signalr.HubConnectionBuilder;
@@ -67,6 +65,16 @@ public class ChatChainHubConnection
     public <T2 extends IClientEventMessage> void sendClientEventMessage(T2 message)
     {
         connection.send("SendClientEventMessage", message);
+    }
+
+    public <T2 extends IUserEventMessage> void onUserEventMessage(Action1<T2> action, Class<T2> messageClass)
+    {
+        connection.on("ReceiveUserEventMessage", action, messageClass);
+    }
+
+    public <T2 extends IUserEventMessage> void sendUserEventMessage(T2 message)
+    {
+        connection.send("SendUserEventMessage", message);
     }
 
     public <T2 extends IGetGroupsResponse> void onGetGroupsResponse(Action1<T2> action, Class<T2> messageClass)
