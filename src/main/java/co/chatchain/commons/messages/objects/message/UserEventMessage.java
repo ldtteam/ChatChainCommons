@@ -29,7 +29,7 @@ public class UserEventMessage implements IUserEventMessage<User, Client>
         return this.event;
     }
 
-    public User getUser() { return null;}
+    public User getUser() { return this.user;}
 
     @Override
     public Client getClient()
