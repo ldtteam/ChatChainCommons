@@ -20,6 +20,13 @@ public class ChatChainHubConnection
                 .build();
     }
 
+    public ChatChainHubConnection(final String apiURL, final AccessTokenResolver accessTokenResolver)
+    {
+        connection = HubConnectionBuilder.create(apiURL)
+                .withAccessTokenProvider(Single.defer(() -> Single.just(accessTokenResolver.getAccessToken())))
+                .build();
+    }
+
     public HubConnection getConnection()
     {
         return connection;

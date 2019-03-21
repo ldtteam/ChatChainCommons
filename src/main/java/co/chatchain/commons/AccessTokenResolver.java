@@ -25,37 +25,46 @@ public class AccessTokenResolver
         this.identityUrl = new URL(identityUrl);
     }
 
-    public String getAccessToken() throws IOException
+    public String getAccessToken()
     {
-        URLConnection con = identityUrl.openConnection();
-        HttpURLConnection http = (HttpURLConnection) con;
-        http.setRequestMethod("POST");
-        http.setDoOutput(true);
-
-        Map<String, String> arguments = new HashMap<>();
-        arguments.put("client_id", clientId);
-        arguments.put("client_secret", clientPassword);
-        arguments.put("grant_type", "client_credentials");
-        StringJoiner sj = new StringJoiner("&");
-        for (Map.Entry<String, String> entry : arguments.entrySet())
+        try
         {
-            sj.add(URLEncoder.encode(entry.getKey(), "UTF-8") + "=" + URLEncoder.encode(entry.getValue(), "UTF-8"));
+            URLConnection con = identityUrl.openConnection();
+            HttpURLConnection http = (HttpURLConnection) con;
+            http.setRequestMethod("POST");
+            http.setDoOutput(true);
+
+            Map<String, String> arguments = new HashMap<>();
+            arguments.put("client_id", clientId);
+            arguments.put("client_secret", clientPassword);
+            arguments.put("grant_type", "client_credentials");
+            StringJoiner sj = new StringJoiner("&");
+            for (Map.Entry<String, String> entry : arguments.entrySet())
+            {
+                sj.add(URLEncoder.encode(entry.getKey(), "UTF-8") + "=" + URLEncoder.encode(entry.getValue(), "UTF-8"));
+            }
+            byte[] out = sj.toString().getBytes(StandardCharsets.UTF_8);
+            int length = out.length;
+            http.setFixedLengthStreamingMode(length);
+            http.connect();
+            try (OutputStream os = http.getOutputStream())
+            {
+                os.write(out);
+            }
+
+            Scanner s = new Scanner(http.getInputStream()).useDelimiter("\\A");
+            String output = s.hasNext() ? s.next() : "";
+
+            JSONObject jsonObject = new JSONObject(output);
+
+            return jsonObject.getString("access_token");
         }
-        byte[] out = sj.toString().getBytes(StandardCharsets.UTF_8);
-        int length = out.length;
-        http.setFixedLengthStreamingMode(length);
-        http.connect();
-        try (OutputStream os = http.getOutputStream())
+        catch (IOException e)
         {
-            os.write(out);
+            System.out.println("Problem with getting access token: ");
+            e.printStackTrace();
+            return null;
         }
-
-        Scanner s = new Scanner(http.getInputStream()).useDelimiter("\\A");
-        String output = s.hasNext() ? s.next() : "";
-
-        JSONObject jsonObject = new JSONObject(output);
-
-        return jsonObject.getString("access_token");
     }
 
 }
