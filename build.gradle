@@ -25,13 +25,13 @@ dependencies {
 
 shadowJar {
     from sourceSets.main.output
+
+    relocate('org.slf4j', 'co.chatchain.org.slf4j')
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {
     classifier = 'sources'
     from sourceSets.main.allSource
-
-    relocate('org.slf4j', 'co.chatchain.org.slf4j')
 }
 
 artifacts {
