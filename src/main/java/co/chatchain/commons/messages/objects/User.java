@@ -1,20 +1,13 @@
 package co.chatchain.commons.messages.objects;
 
-import co.chatchain.commons.messages.interfaces.IUser;
+import co.chatchain.commons.messages.abstracts.AbstractUser;
 
-public class User implements IUser
+public class User extends AbstractUser
 {
-
-    private String name;
 
     public User(final String name)
     {
         this.name = name;
     }
 
-    @Override
-    public String getName()
-    {
-        return name;
-    }
 }

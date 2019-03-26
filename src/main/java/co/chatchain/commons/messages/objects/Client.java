@@ -1,40 +1,10 @@
 package co.chatchain.commons.messages.objects;
 
-import co.chatchain.commons.messages.interfaces.IClient;
+import co.chatchain.commons.messages.abstracts.AbstractClient;
 
-public class Client implements IClient
+public class Client extends AbstractClient
 {
 
-    private String clientId;
-    private String ownerId;
-    private String clientGuid;
-    private String clientName;
+    public Client() {}
 
-    public Client()
-    {
-    }
-
-    @Override
-    public String getClientId()
-    {
-        return clientId;
-    }
-
-    @Override
-    public String getOwnerId()
-    {
-        return ownerId;
-    }
-
-    @Override
-    public String getClientGuid()
-    {
-        return clientGuid;
-    }
-
-    @Override
-    public String getClientName()
-    {
-        return clientName;
-    }
 }
