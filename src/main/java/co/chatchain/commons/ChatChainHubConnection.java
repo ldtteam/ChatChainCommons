@@ -1,6 +1,7 @@
 package co.chatchain.commons;
 
-import co.chatchain.commons.messages.abstracts.messages.*;
+import co.chatchain.commons.messages.interfaces.IUser;
+import co.chatchain.commons.messages.interfaces.message.*;
 import com.microsoft.signalr.Action1;
 import com.microsoft.signalr.HubConnection;
 import com.microsoft.signalr.HubConnectionBuilder;
@@ -53,37 +54,37 @@ public class ChatChainHubConnection
         connection.start().blockingAwait();
     }
 
-    public <T1 extends AbstractGenericMessage> void onGenericMessage(Action1<T1> action, Class<T1> messageClass)
+    public <T2 extends IGenericMessage> void onGenericMessage(Action1<T2> action, Class<T2> messageClass)
     {
         connection.on("ReceiveGenericMessage", action, messageClass);
     }
 
-    public <T1 extends AbstractGenericMessage> void sendGenericMessage(T1 message)
+    public <T2 extends IGenericMessage> void sendGenericMessage(T2 message)
     {
         connection.send("SendGenericMessage", message);
     }
 
-    public <T1 extends AbstractClientEventMessage> void onClientEventMessage(Action1<T1> action, Class<T1> messageClass)
+    public <T2 extends IClientEventMessage> void onClientEventMessage(Action1<T2> action, Class<T2> messageClass)
     {
         connection.on("ReceiveClientEventMessage", action, messageClass);
     }
 
-    public <T1 extends AbstractClientEventMessage> void sendClientEventMessage(T1 message)
+    public <T2 extends IClientEventMessage> void sendClientEventMessage(T2 message)
     {
         connection.send("SendClientEventMessage", message);
     }
 
-    public <T1 extends AbstractUserEventMessage> void onUserEventMessage(Action1<T1> action, Class<T1> messageClass)
+    public <T2 extends IUserEventMessage> void onUserEventMessage(Action1<T2> action, Class<T2> messageClass)
     {
         connection.on("ReceiveUserEventMessage", action, messageClass);
     }
 
-    public <T1 extends AbstractUserEventMessage> void sendUserEventMessage(T1 message)
+    public <T2 extends IUserEventMessage> void sendUserEventMessage(T2 message)
     {
         connection.send("SendUserEventMessage", message);
     }
 
-    public <T1 extends AbstractGetGroupsResponse> void onGetGroupsResponse(Action1<T1> action, Class<T1> messageClass)
+    public <T2 extends IGetGroupsResponse> void onGetGroupsResponse(Action1<T2> action, Class<T2> messageClass)
     {
         connection.on("ReceiveGroups", action, messageClass);
     }
@@ -93,7 +94,7 @@ public class ChatChainHubConnection
         connection.send("GetGroups");
     }
 
-    public <T1 extends AbstractGetClientResponse> void onGetClientResponse(Action1<T1> action, Class<T1> messageClass)
+    public <T2 extends IGetClientResponse> void onGetClientResponse(Action1<T2> action, Class<T2> messageClass)
     {
         connection.on("ReceiveClient", action, messageClass);
     }
