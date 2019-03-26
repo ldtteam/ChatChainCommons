@@ -1,4 +1,4 @@
-package co.chatchain.commons.messages.interfaces.message;
+package co.chatchain.commons.messages.interfaces.messages;
 
 import co.chatchain.commons.messages.interfaces.IClient;
 
@@ -9,7 +9,7 @@ public interface IClientEventMessage<T1 extends IClient>
 
     String getEvent();
 
-    T1 getClient();
+    T1 getSendingClient();
 
     boolean hasSendToSelf();
 

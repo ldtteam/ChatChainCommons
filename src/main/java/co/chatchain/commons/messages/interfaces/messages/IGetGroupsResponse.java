@@ -1,4 +1,4 @@
-package co.chatchain.commons.messages.interfaces.message;
+package co.chatchain.commons.messages.interfaces.messages;
 
 import co.chatchain.commons.messages.interfaces.IGroup;
 

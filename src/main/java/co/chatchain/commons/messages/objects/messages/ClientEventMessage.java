@@ -1,6 +1,6 @@
-package co.chatchain.commons.messages.objects.message;
+package co.chatchain.commons.messages.objects.messages;
 
-import co.chatchain.commons.messages.interfaces.message.IClientEventMessage;
+import co.chatchain.commons.messages.interfaces.messages.IClientEventMessage;
 import co.chatchain.commons.messages.objects.Client;
 
 import java.util.Map;
@@ -36,7 +36,7 @@ public class ClientEventMessage implements IClientEventMessage<Client>
     }
 
     @Override
-    public Client getClient()
+    public Client getSendingClient()
     {
         return this.sendingClient;
     }

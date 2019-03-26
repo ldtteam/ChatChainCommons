@@ -1,7 +1,6 @@
 package co.chatchain.commons;
 
-import co.chatchain.commons.messages.interfaces.IUser;
-import co.chatchain.commons.messages.interfaces.message.*;
+import co.chatchain.commons.messages.interfaces.messages.*;
 import com.microsoft.signalr.Action1;
 import com.microsoft.signalr.HubConnection;
 import com.microsoft.signalr.HubConnectionBuilder;

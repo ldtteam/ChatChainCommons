@@ -1,6 +1,6 @@
-package co.chatchain.commons.messages.objects.message;
+package co.chatchain.commons.messages.objects.messages;
 
-import co.chatchain.commons.messages.interfaces.message.IGenericMessage;
+import co.chatchain.commons.messages.interfaces.messages.IGenericMessage;
 import co.chatchain.commons.messages.objects.Client;
 import co.chatchain.commons.messages.objects.Group;
 import co.chatchain.commons.messages.objects.User;

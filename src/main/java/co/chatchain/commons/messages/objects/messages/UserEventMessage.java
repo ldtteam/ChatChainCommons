@@ -1,6 +1,6 @@
-package co.chatchain.commons.messages.objects.message;
+package co.chatchain.commons.messages.objects.messages;
 
-import co.chatchain.commons.messages.interfaces.message.IUserEventMessage;
+import co.chatchain.commons.messages.interfaces.messages.IUserEventMessage;
 import co.chatchain.commons.messages.objects.Client;
 import co.chatchain.commons.messages.objects.User;
 
@@ -41,7 +41,7 @@ public class UserEventMessage implements IUserEventMessage<User, Client>
     public User getUser() { return this.user;}
 
     @Override
-    public Client getClient()
+    public Client getSendingClient()
     {
         return this.sendingClient;
     }
