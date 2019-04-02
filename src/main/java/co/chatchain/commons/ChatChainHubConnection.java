@@ -54,7 +54,7 @@ public class ChatChainHubConnection
         connection.start().blockingAwait();
         autoReconnect = true;
 
-        if (!reconnectionThread.isAlive())
+        if (reconnectionThread == null || !reconnectionThread.isAlive())
         {
             reconnectionThread = new Thread(this::reconnectionThread);
             reconnectionThread.start();
@@ -75,7 +75,7 @@ public class ChatChainHubConnection
         connection.start().blockingAwait();
         autoReconnect = true;
 
-        if (!reconnectionThread.isAlive())
+        if (reconnectionThread == null || !reconnectionThread.isAlive())
         {
             reconnectionThread = new Thread(this::reconnectionThread);
             reconnectionThread.start();
