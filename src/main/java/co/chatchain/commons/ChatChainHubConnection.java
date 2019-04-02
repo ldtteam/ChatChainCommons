@@ -51,7 +51,15 @@ public class ChatChainHubConnection
 
     public void connect()
     {
-        connection.start().blockingAwait();
+        try
+        {
+            connection.start().blockingAwait();
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+
         autoReconnect = true;
 
         if (reconnectionThread == null || !reconnectionThread.isAlive())
@@ -69,17 +77,9 @@ public class ChatChainHubConnection
 
     public void reconnect()
     {
-        autoReconnect = false;
-        connection.stop().blockingAwait();
+        disconnect();
 
-        connection.start().blockingAwait();
-        autoReconnect = true;
-
-        if (reconnectionThread == null || !reconnectionThread.isAlive())
-        {
-            reconnectionThread = new Thread(this::reconnectionThread);
-            reconnectionThread.start();
-        }
+        connect();
     }
 
     public <T2 extends IGenericMessage> void onGenericMessage(Action1<T2> action, Class<T2> messageClass)
