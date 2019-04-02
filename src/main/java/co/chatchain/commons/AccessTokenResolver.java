@@ -2,6 +2,7 @@ package co.chatchain.commons;
 
 import org.json.JSONObject;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.*;
@@ -61,9 +62,14 @@ public class AccessTokenResolver
         }
         catch (IOException e)
         {
+            if (e instanceof FileNotFoundException)
+            {
+                System.out.println(identityUrl + ": 404 Not Found");
+                return "";
+            }
             System.out.println("Problem with getting access token: ");
             e.printStackTrace();
-            return null;
+            return "";
         }
     }
 
