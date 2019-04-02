@@ -11,6 +11,8 @@ public class ChatChainHubConnection
 {
 
     private HubConnection connection;
+    private Boolean autoReconnect = true;
+    private Thread reconnectionThread;
 
     public ChatChainHubConnection(final String apiURL, final String accessToken)
     {
@@ -26,6 +28,17 @@ public class ChatChainHubConnection
                 .build();
     }
 
+    public void reconnectionThread()
+    {
+        while (autoReconnect)
+        {
+            if (connection.getConnectionState() != HubConnectionState.CONNECTED)
+            {
+                connect();
+            }
+        }
+    }
+
     public HubConnection getConnection()
     {
         return connection;
@@ -39,18 +52,34 @@ public class ChatChainHubConnection
     public void connect()
     {
         connection.start().blockingAwait();
+        autoReconnect = true;
+
+        if (!reconnectionThread.isAlive())
+        {
+            reconnectionThread = new Thread(this::reconnectionThread);
+            reconnectionThread.start();
+        }
     }
 
     public void disconnect()
     {
+        autoReconnect = false;
         connection.stop().blockingAwait();
     }
 
     public void reconnect()
     {
+        autoReconnect = false;
         connection.stop().blockingAwait();
 
         connection.start().blockingAwait();
+        autoReconnect = true;
+
+        if (!reconnectionThread.isAlive())
+        {
+            reconnectionThread = new Thread(this::reconnectionThread);
+            reconnectionThread.start();
+        }
     }
 
     public <T2 extends IGenericMessage> void onGenericMessage(Action1<T2> action, Class<T2> messageClass)
