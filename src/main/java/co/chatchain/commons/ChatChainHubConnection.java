@@ -113,6 +113,11 @@ public class ChatChainHubConnection
     public void onConnection(Action1<ChatChainHubConnection> callback)
     {
         onConnectActions.add(callback);
+
+        if (connection != null)
+        {
+            callback.invoke(this);
+        }
     }
 
     public <T2 extends IGenericMessage> void onGenericMessage(Action1<T2> action, Class<T2> messageClass)
