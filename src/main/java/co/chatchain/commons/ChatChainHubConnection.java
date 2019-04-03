@@ -26,11 +26,18 @@ public class ChatChainHubConnection
     {
         while (autoReconnect)
         {
-            System.out.println("Looping!");
             if (connection == null || connection.getConnectionState() != HubConnectionState.CONNECTED)
             {
-                System.out.println("Attempting to Reconnect");
                 connect();
+            }
+            try
+            {
+                Thread.sleep(30000);
+            }
+            catch (InterruptedException e)
+            {
+                System.out.println("Problem creating auto reconnection thread: ");
+                e.printStackTrace();
             }
         }
     }
@@ -66,10 +73,8 @@ public class ChatChainHubConnection
 
         autoReconnect = true;
 
-        System.out.println("Test0");
         if (reconnectionThread == null || !reconnectionThread.isAlive())
         {
-            System.out.println("Test1");
             reconnectionThread = new Thread(this::reconnectionThread);
             reconnectionThread.start();
         }

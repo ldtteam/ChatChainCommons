@@ -62,13 +62,7 @@ public class AccessTokenResolver
         }
         catch (IOException e)
         {
-            if (e instanceof FileNotFoundException)
-            {
-                System.out.println(identityUrl + ": 404 Not Found");
-                return "";
-            }
-            System.out.println("Problem with getting access token: ");
-            e.printStackTrace();
+            System.out.println("Problem with getting access token, please check server availability");
             return "";
         }
     }
