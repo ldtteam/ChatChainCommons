@@ -7,14 +7,17 @@ import com.microsoft.signalr.HubConnectionBuilder;
 import com.microsoft.signalr.HubConnectionState;
 import io.reactivex.Single;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ChatChainHubConnection
 {
-
     private HubConnection connection;
     private Boolean autoReconnect = true;
     private Thread reconnectionThread;
     private String apiURL;
     private AccessTokenResolver accessTokenResolver;
+    private List<Action1<ChatChainHubConnection>> onConnectActions = new ArrayList<>();
 
     public ChatChainHubConnection(final String apiURL, final AccessTokenResolver accessTokenResolver)
     {
@@ -75,6 +78,10 @@ public class ChatChainHubConnection
 
         connection.start().blockingAwait();
 
+        for (Action1<ChatChainHubConnection> action : onConnectActions)
+        {
+            action.invoke(this);
+        }
 
         autoReconnect = true;
 
@@ -97,6 +104,15 @@ public class ChatChainHubConnection
         disconnect();
 
         connect();
+    }
+
+    /**
+     * This method is for registering things you'd like to happen every time the client connects. good place to put message listeners!
+     * @param callback the lambda you want executed
+     */
+    public void onConnection(Action1<ChatChainHubConnection> callback)
+    {
+        onConnectActions.add(callback);
     }
 
     public <T2 extends IGenericMessage> void onGenericMessage(Action1<T2> action, Class<T2> messageClass)
