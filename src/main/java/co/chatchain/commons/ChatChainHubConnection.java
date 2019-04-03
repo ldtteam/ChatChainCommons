@@ -58,28 +58,23 @@ public class ChatChainHubConnection
 
     public void connect()
     {
+
+        final String accessToken;
         try
         {
-            connection = HubConnectionBuilder.create(apiURL)
-                    .withAccessTokenProvider(Single.defer(() -> {
-                        try
-                        {
-                            return Single.just(accessTokenResolver.getAccessToken());
-                        }
-                        catch (Exception e)
-                        {
-                            System.out.println("Problem with getting access token, please check server availability");
-                        }
-                        return Single.just("");
-                    }))
-                    .build();
-
-            connection.start().blockingAwait();
-        }
-        catch (Exception e)
+            accessToken = accessTokenResolver.getAccessToken();
+        } catch (Exception e)
         {
-            e.printStackTrace();
+            System.out.println("Problem with getting access token, please check server availability");
+            return;
         }
+
+        connection = HubConnectionBuilder.create(apiURL)
+                .withAccessTokenProvider(Single.defer(() -> Single.just(accessToken)))
+                .build();
+
+        connection.start().blockingAwait();
+
 
         autoReconnect = true;
 
