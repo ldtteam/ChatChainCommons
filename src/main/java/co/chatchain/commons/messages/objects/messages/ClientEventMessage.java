@@ -2,12 +2,14 @@ package co.chatchain.commons.messages.objects.messages;
 
 import co.chatchain.commons.messages.interfaces.messages.IClientEventMessage;
 import co.chatchain.commons.messages.objects.Client;
+import co.chatchain.commons.messages.objects.Group;
 
 import java.util.Map;
 
-public class ClientEventMessage implements IClientEventMessage<Client>
+public class ClientEventMessage implements IClientEventMessage<Client, Group>
 {
     private String event;
+    private Group group;
     private Client sendingClient;
     private boolean sendToSelf;
     private Map<String, String> extraEventData;
@@ -33,6 +35,12 @@ public class ClientEventMessage implements IClientEventMessage<Client>
     public String getEvent()
     {
         return this.event;
+    }
+
+    @Override
+    public Group getGroup()
+    {
+        return this.group;
     }
 
     @Override
