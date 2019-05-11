@@ -9,5 +9,7 @@ public interface IUser<T1 extends IClientRank>
 
     String getUniqueId();
 
+    String getNickName();
+
     List<T1> getClientRanks();
 }
