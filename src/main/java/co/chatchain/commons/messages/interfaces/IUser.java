@@ -11,5 +11,7 @@ public interface IUser<T1 extends IClientRank>
 
     String getNickName();
 
+    String getColour();
+
     List<T1> getClientRanks();
 }
