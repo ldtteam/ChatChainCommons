@@ -66,16 +66,22 @@ task sourcesJar(type: Jar, dependsOn: classes) {
     from sourceSets.main.allSource
 }
 
+artifacts {
+    archives sourcesJar
+    archives shadowJar
+}
+
 //Define what to publish and how.
 publishing {
     publications {
         mavenJava(MavenPublication) {
-            from components.java // original java sources jar
             groupId = project.group
             artifactId "commons"
             artifact sourcesJar
             artifact shadowJar
 
+            from components.java
+            
             pom {
                 url = 'https://github.com/ldtteam/ChatChainCommons'
                 licenses {
@@ -118,9 +124,4 @@ artifactory {
             publishdPom = true   //Publish generated POM files to Artifactory (true by default).
         }
     }
-}
-
-artifacts {
-    archives sourcesJar
-    archives shadowJar
 }
