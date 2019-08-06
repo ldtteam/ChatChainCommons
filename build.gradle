@@ -55,11 +55,12 @@ task sourcesJar(type: Jar, dependsOn: classes) {
 //Define what to publish and how.
 publishing {
     publications {
-        shadow(MavenPublication) {
-            shadow.component(it)
+        mavenJava(MavenPublication) {
+            from components.java // original java sources jar
             groupId = project.group
             artifactId "commons"
             artifact sourcesJar
+            artifact shadowJar
 
             pom {
                 url = 'https://github.com/ldtteam/ChatChainCommons'
