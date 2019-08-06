@@ -55,7 +55,7 @@ task sourcesJar(type: Jar, dependsOn: classes) {
 //Define what to publish and how.
 publishing {
     publications {
-        maven(MavenPublication) {
+        shadow(MavenPublication) {
             groupId = project.group
             artifactId "commons"
             artifact sourcesJar
