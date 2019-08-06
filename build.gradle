@@ -78,6 +78,8 @@ publishing {
             artifactId "commons"
             artifact sourcesJar
 
+            from components.java
+
             pom {
                 url = 'https://github.com/ldtteam/ChatChainCommons'
                 licenses {
