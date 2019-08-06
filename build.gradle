@@ -20,7 +20,7 @@ apply plugin: "com.jfrog.artifactory"
 
 group 'co.chatchain'
 version = System.getenv()['BUILD_NUMBER'] != null ? System.getenv()['BUILD_NUMBER'] : System.getenv()['TRAVIS_BUILD_NUMBER']
-archivesBaseName = 'chatchaincommons'
+archivesBaseName = 'commons'
 
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = 1.8
 
@@ -51,7 +51,7 @@ jar {
     manifest {
         attributes([
                 'Maven-Artifact'    : "${project.group}:${project.archivesBaseName}:${project.version}",
-                'Specification-Title' : "chatchaincommons",
+                'Specification-Title' : "commons",
                 'Specification-Vendor' : "chatchain",
                 'Specification-Version' : "1",
                 'Implementation-Title' : project.name,
@@ -84,7 +84,7 @@ publishing {
     publications {
         maven(MavenPublication) {
             groupId = project.group
-            artifactId "chatchaincommons"
+            artifactId "commons"
             artifact sourcesJar
             artifact shadowJar
 
