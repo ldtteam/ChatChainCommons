@@ -1,9 +1,20 @@
+buildscript {
+  repositories {
+    jcenter()
+  }
+  dependencies {
+    classpath "org.jfrog.buildinfo:build-info-extractor-gradle:latest.release"
+  }
+}
+
+apply plugin: "com.jfrog.artifactory"
+
 plugins {
     id 'java'
     id 'com.github.johnrengelman.shadow' version '2.0.4'
 }
 
-group 'co.chatchain.commons'
+group 'co.chatchain'
 version = System.getenv()['BUILD_NUMBER'] != null ? System.getenv()['BUILD_NUMBER'] : System.getenv()['TRAVIS_BUILD_NUMBER']
 
 sourceCompatibility = 1.8
@@ -24,7 +35,7 @@ dependencies {
 }
 
 shadowJar {
-    from sourceSets.main.output
+    from sourceSets.main.outputd
 
     relocate('org.slf4j', 'co.chatchain.org.slf4j')
 }
@@ -32,6 +43,71 @@ shadowJar {
 task sourcesJar(type: Jar, dependsOn: classes) {
     classifier = 'sources'
     from sourceSets.main.allSource
+}
+
+//Define what to publish and how.
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId = project.group
+            artifactId "commons"
+            artifact sourcesJar
+
+            from components.shadow
+
+            pom {
+                url = 'https://github.com/ldtteam/ChatChainCommons'
+                licenses {
+                    license {
+                        name = 'GNU GENERAL PUBLIC LICENSE Version 3'
+                        url = 'https://www.gnu.org/licenses/gpl-3.0.en.html'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'AshersLab'
+                        name = 'Asher'
+                        email = 'asherslab@chatchain.co'
+                    }
+                }
+                contributors {
+                    contributor {
+                        id = 'ldtteam'
+                        name = 'Let\'s Develop Together - Team'
+                        email = 'info@ldtteam.com'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git://github.com/ldtteam/chatchaincommons.git'
+                    developerConnection = 'scm:git:ssh://github.com/ldtteam/chatchaincommons.git'
+                    url = 'https://github.com/ldtteam/ChatChainCommons'
+                }
+            }
+
+            //Replace all deobf dependencies with normal jar references.
+            pom.withXml { xmlProvider ->
+                final Element document = xmlProvider.asElement()
+                final NodeList groupIdNodes = document.getElementsByTagName("groupId")
+                groupIdNodes.each { groupIdNodeObject ->
+                    final Node groupIdNode = (Node) groupIdNodeObject
+                    final String groupId = groupIdNode.getFirstChild().getTextContent().trim()
+                    groupIdNode.setTextContent(groupId.replace("deobf.", ""))
+                }
+            }
+        }
+    }
+}
+
+//Notify artifactory of what to publish.
+artifactory {
+    publish {
+        defaults {
+            publications('maven')
+            publishBuildInfo = true   //Publish build-info to Artifactory (true by default)
+            publishArtifacts = true   //Publish artifacts to Artifactory (true by default)
+            publishdPom = true   //Publish generated POM files to Artifactory (true by default).
+        }
+    }
 }
 
 artifacts {
