@@ -75,13 +75,12 @@ artifacts {
 publishing {
     publications {
         mavenJava(MavenPublication) {
+            from components.java // original java sources jar
             groupId = project.group
             artifactId "commons"
             artifact sourcesJar
             artifact shadowJar
 
-            from components.java
-            
             pom {
                 url = 'https://github.com/ldtteam/ChatChainCommons'
                 licenses {
