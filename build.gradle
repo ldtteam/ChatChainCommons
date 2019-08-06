@@ -64,7 +64,7 @@ jar {
 
 shadowJar {
     from sourceSets.main.output
-    classified = 'all'
+    classifier = 'all'
 
     relocate('org.slf4j', 'co.chatchain.org.slf4j')
 }
