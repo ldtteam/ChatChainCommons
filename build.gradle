@@ -56,11 +56,10 @@ task sourcesJar(type: Jar, dependsOn: classes) {
 publishing {
     publications {
         shadow(MavenPublication) {
+            shadow.component(it)
             groupId = project.group
             artifactId "commons"
             artifact sourcesJar
-
-            from components.shadow
 
             pom {
                 url = 'https://github.com/ldtteam/ChatChainCommons'
