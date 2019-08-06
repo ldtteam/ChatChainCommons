@@ -84,7 +84,7 @@ publishing {
     publications {
         maven(MavenPublication) {
             groupId = project.group
-            artifactId "commons"
+            artifactId "chatchaincommons"
             artifact sourcesJar
             artifact shadowJar
 
