@@ -1,7 +1,3 @@
-import org.w3c.dom.Element
-import org.w3c.dom.Node
-import org.w3c.dom.NodeList
-
 buildscript {
   repositories {
     mavenCentral()
@@ -23,6 +19,7 @@ apply plugin: "com.jfrog.artifactory"
 
 group 'co.chatchain'
 version = System.getenv()['BUILD_NUMBER'] != null ? System.getenv()['BUILD_NUMBER'] : System.getenv()['TRAVIS_BUILD_NUMBER']
+archivesBaseName = 'chatchaincommons'
 
 sourceCompatibility = 1.8
 
@@ -39,6 +36,23 @@ dependencies {
     compile('org.slf4j:slf4j-jdk14:1.7.25')
 
     compile 'com.microsoft.signalr:signalr:1.0.2'
+}
+
+jar {
+    from sourceSets.main.output
+
+    manifest {
+        attributes([
+                'Maven-Artifact'    : "${project.group}:${project.archivesBaseName}:${project.version}",
+                'Specification-Title' : "chatchaincommons",
+                'Specification-Vendor' : "chatchain",
+                'Specification-Version' : "1",
+                'Implementation-Title' : project.name,
+                'Implementation-Version' : "${version}",
+                'Implementation-Vendor' : "chatchain",
+                'Implementation-Timestamp' : new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+        ])
+    }
 }
 
 shadowJar {
@@ -88,17 +102,6 @@ publishing {
                     connection = 'scm:git:git://github.com/ldtteam/chatchaincommons.git'
                     developerConnection = 'scm:git:ssh://github.com/ldtteam/chatchaincommons.git'
                     url = 'https://github.com/ldtteam/ChatChainCommons'
-                }
-            }
-
-            //Replace all deobf dependencies with normal jar references.
-            pom.withXml { xmlProvider ->
-                final Element document = xmlProvider.asElement()
-                final NodeList groupIdNodes = document.getElementsByTagName("groupId")
-                groupIdNodes.each { groupIdNodeObject ->
-                    final Node groupIdNode = (Node) groupIdNodeObject
-                    final String groupId = groupIdNode.getFirstChild().getTextContent().trim()
-                    groupIdNode.setTextContent(groupId.replace("deobf.", ""))
                 }
             }
         }
