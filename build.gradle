@@ -42,7 +42,7 @@ dependencies {
 }
 
 shadowJar {
-    from sourceSets.main.outputd
+    from sourceSets.main.output
 
     relocate('org.slf4j', 'co.chatchain.org.slf4j')
 }
