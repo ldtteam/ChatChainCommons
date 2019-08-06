@@ -10,7 +10,6 @@ buildscript {
 
 plugins {
     id 'java'
-    id 'com.github.johnrengelman.shadow' version '2.0.4'
 }
 
 apply plugin: 'maven-publish'
@@ -75,7 +74,6 @@ task sourcesJar(type: Jar, dependsOn: classes) {
 
 artifacts {
     archives sourcesJar
-    archives shadowJar
 }
 
 //Define what to publish and how.
@@ -85,9 +83,6 @@ publishing {
             groupId = project.group
             artifactId "commons"
             artifact sourcesJar
-            artifact shadowJar
-
-            from components.java // original java sources jar
 
             pom {
                 url = 'https://github.com/ldtteam/ChatChainCommons'
