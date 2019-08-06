@@ -15,13 +15,14 @@ plugins {
 
 apply plugin: 'maven-publish'
 apply plugin: 'maven'
+apply plugin: 'idea'
 apply plugin: "com.jfrog.artifactory"
 
 group 'co.chatchain'
 version = System.getenv()['BUILD_NUMBER'] != null ? System.getenv()['BUILD_NUMBER'] : System.getenv()['TRAVIS_BUILD_NUMBER']
 archivesBaseName = 'chatchaincommons'
 
-sourceCompatibility = 1.8
+sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = 1.8
 
 repositories {
     mavenCentral()
@@ -36,6 +37,12 @@ dependencies {
     compile('org.slf4j:slf4j-jdk14:1.7.25')
 
     compile 'com.microsoft.signalr:signalr:1.0.2'
+}
+
+idea {
+    module {
+        inheritOutputDirs = true
+    }
 }
 
 jar {
@@ -57,6 +64,7 @@ jar {
 
 shadowJar {
     from sourceSets.main.output
+    classified = 'all'
 
     relocate('org.slf4j', 'co.chatchain.org.slf4j')
 }
@@ -66,15 +74,21 @@ task sourcesJar(type: Jar, dependsOn: classes) {
     from sourceSets.main.allSource
 }
 
+artifacts {
+    archives sourcesJar
+    archives shadowJar
+}
+
 //Define what to publish and how.
 publishing {
     publications {
-        mavenJava(MavenPublication) {
-            from components.java // original java sources jar
+        maven(MavenPublication) {
             groupId = project.group
             artifactId "commons"
             artifact sourcesJar
             artifact shadowJar
+
+            from components.java // original java sources jar
 
             pom {
                 url = 'https://github.com/ldtteam/ChatChainCommons'
@@ -118,9 +132,4 @@ artifactory {
             publishdPom = true   //Publish generated POM files to Artifactory (true by default).
         }
     }
-}
-
-artifacts {
-    archives sourcesJar
-    archives shadowJar
 }
