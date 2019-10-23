@@ -89,7 +89,8 @@ public class ChatChainHubConnection
         }
         else
         {
-            new Thread(this::waitForConnectedThread);
+            new Thread(this::waitForConnectedThread).start();
+
         }
     }
 
