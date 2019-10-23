@@ -18,6 +18,7 @@ public class ChatChainHubConnection
     private String apiURL;
     private AccessTokenResolver accessTokenResolver;
     private List<Action1<ChatChainHubConnection>> onConnectActions = new ArrayList<>();
+    private List<Action1<ChatChainHubConnection>> onConnectActionsOnce = new ArrayList<>();
 
     public ChatChainHubConnection(final String apiURL, final AccessTokenResolver accessTokenResolver)
     {
@@ -31,7 +32,8 @@ public class ChatChainHubConnection
         {
             if (connection == null || connection.getConnectionState() != HubConnectionState.CONNECTED)
             {
-                connect();
+                connect(false);
+                break;
             }
             try
             {
@@ -61,6 +63,11 @@ public class ChatChainHubConnection
 
     public void connect()
     {
+        connect(true);
+    }
+
+    public void connect(final boolean blocking)
+    {
 
         final String accessToken;
         try
@@ -76,11 +83,32 @@ public class ChatChainHubConnection
                 .withAccessTokenProvider(Single.defer(() -> Single.just(accessToken)))
                 .build();
 
+        if (blocking)
+        {
+            waitForConnectedThread();
+        }
+        else
+        {
+            new Thread(this::waitForConnectedThread);
+        }
+    }
+
+    private void waitForConnectedThread()
+    {
         connection.start().blockingAwait();
 
-        for (Action1<ChatChainHubConnection> action : onConnectActions)
+        if (connection != null && !connection.getConnectionState().equals(HubConnectionState.CONNECTED))
         {
-            action.invoke(this);
+            for (Action1<ChatChainHubConnection> action : onConnectActions)
+            {
+                action.invoke(this);
+            }
+
+            for (Action1<ChatChainHubConnection> action : onConnectActionsOnce)
+            {
+                action.invoke(this);
+            }
+            onConnectActionsOnce = new ArrayList<>();
         }
 
         autoReconnect = true;
@@ -130,9 +158,18 @@ public class ChatChainHubConnection
 
     public <T2 extends IGenericMessage> void sendGenericMessage(T2 message)
     {
+        sendGenericMessage(message, true);
+    }
+
+    public <T2 extends IGenericMessage> void sendGenericMessage(T2 message, final boolean sendWhenConnected)
+    {
         if (connection != null && connection.getConnectionState() == HubConnectionState.CONNECTED)
         {
             connection.send("SendGenericMessage", message);
+        }
+        else if (sendWhenConnected)
+        {
+            onConnectActionsOnce.add(connection -> connection.sendGenericMessage(message));
         }
     }
 
@@ -146,9 +183,18 @@ public class ChatChainHubConnection
 
     public <T2 extends IClientEventMessage> void sendClientEventMessage(T2 message)
     {
+        sendClientEventMessage(message, true);
+    }
+
+    public <T2 extends IClientEventMessage> void sendClientEventMessage(T2 message, final boolean sendWhenConnected)
+    {
         if (connection != null && connection.getConnectionState() == HubConnectionState.CONNECTED)
         {
             connection.send("SendClientEventMessage", message);
+        }
+        else if (sendWhenConnected)
+        {
+            onConnectActionsOnce.add(connection -> connection.sendClientEventMessage(message));
         }
     }
 
@@ -162,9 +208,18 @@ public class ChatChainHubConnection
 
     public <T2 extends IUserEventMessage> void sendUserEventMessage(T2 message)
     {
+        sendUserEventMessage(message, true);
+    }
+
+    public <T2 extends IUserEventMessage> void sendUserEventMessage(T2 message, final boolean sendWhenConnected)
+    {
         if (connection != null && connection.getConnectionState() == HubConnectionState.CONNECTED)
         {
             connection.send("SendUserEventMessage", message);
+        }
+        else if (sendWhenConnected)
+        {
+            onConnectActionsOnce.add(connection -> connection.sendUserEventMessage(message));
         }
     }
 
@@ -178,9 +233,18 @@ public class ChatChainHubConnection
 
     public void sendGetGroups()
     {
+        sendGetGroups(true);
+    }
+
+    public void sendGetGroups(final boolean sendWhenConnected)
+    {
         if (connection != null && connection.getConnectionState() == HubConnectionState.CONNECTED)
         {
             connection.send("GetGroups");
+        }
+        else if (sendWhenConnected)
+        {
+            onConnectActionsOnce.add(ChatChainHubConnection::sendGetGroups);
         }
     }
 
@@ -194,9 +258,18 @@ public class ChatChainHubConnection
 
     public void sendGetClient()
     {
+        sendGetClient(true);
+    }
+
+    public void sendGetClient(final boolean sendWhenConnected)
+    {
         if (connection != null && connection.getConnectionState() == HubConnectionState.CONNECTED)
         {
             connection.send("GetClient");
+        }
+        else if (sendWhenConnected)
+        {
+            onConnectActionsOnce.add(ChatChainHubConnection::sendGetClient);
         }
     }
 
