@@ -97,7 +97,7 @@ public class ChatChainHubConnection
     {
         connection.start().blockingAwait();
 
-        if (connection != null && !connection.getConnectionState().equals(HubConnectionState.CONNECTED))
+        if (connection != null && connection.getConnectionState().equals(HubConnectionState.CONNECTED))
         {
             for (Action1<ChatChainHubConnection> action : onConnectActions)
             {
