@@ -2,20 +2,20 @@ package co.chatchain.commons.objects.requests;
 
 import co.chatchain.commons.objects.ClientUser;
 
-import java.util.Dictionary;
+import java.util.Map;
 
 public class UserEventRequest
 {
 
     private ClientUser clientUser;
     private String event;
-    private Dictionary<String, String> eventData;
+    private Map<String, String> eventData;
 
     public UserEventRequest()
     {
     }
 
-    public UserEventRequest(final ClientUser clientUser, final String event, final Dictionary<String, String> eventData)
+    public UserEventRequest(final ClientUser clientUser, final String event, final Map<String, String> eventData)
     {
         this.clientUser = clientUser;
         this.event = event;
@@ -42,12 +42,12 @@ public class UserEventRequest
         this.event = event;
     }
 
-    public Dictionary<String, String> getEventData()
+    public Map<String, String> getEventData()
     {
         return eventData;
     }
 
-    public void setEventData(final Dictionary<String, String> eventData)
+    public void setEventData(final Map<String, String> eventData)
     {
         this.eventData = eventData;
     }

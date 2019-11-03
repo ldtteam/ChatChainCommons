@@ -3,7 +3,7 @@ package co.chatchain.commons.objects.messages;
 import co.chatchain.commons.objects.Client;
 import co.chatchain.commons.objects.Group;
 
-import java.util.Dictionary;
+import java.util.Map;
 import java.util.List;
 
 public class ClientEventMessage
@@ -14,13 +14,13 @@ public class ClientEventMessage
     private Group group;
     private List<Group> groups;
     private String event;
-    private Dictionary<String, String> EventData;
+    private Map<String, String> EventData;
 
     public ClientEventMessage()
     {
     }
 
-    public ClientEventMessage(final Client sendingClient, final String clientId, final Group group, final List<Group> groups, final String event, final Dictionary<String, String> eventData)
+    public ClientEventMessage(final Client sendingClient, final String clientId, final Group group, final List<Group> groups, final String event, final Map<String, String> eventData)
     {
         this.sendingClient = sendingClient;
         this.clientId = clientId;
@@ -80,12 +80,12 @@ public class ClientEventMessage
         this.event = event;
     }
 
-    public Dictionary<String, String> getEventData()
+    public Map<String, String> getEventData()
     {
         return EventData;
     }
 
-    public void setEventData(final Dictionary<String, String> eventData)
+    public void setEventData(final Map<String, String> eventData)
     {
         EventData = eventData;
     }
