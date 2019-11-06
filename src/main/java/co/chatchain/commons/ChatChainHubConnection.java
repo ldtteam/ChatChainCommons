@@ -12,11 +12,12 @@ import io.reactivex.Single;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ChatChainHubConnection
 {
     private HubConnection connection;
-    private Boolean autoReconnect = true;
+    private AtomicBoolean autoReconnect = new AtomicBoolean(true);
     private Thread reconnectionThread;
     private String apiURL;
     private AccessTokenResolver accessTokenResolver;
@@ -31,12 +32,11 @@ public class ChatChainHubConnection
 
     private void reconnectionThread()
     {
-        while (autoReconnect)
+        while (autoReconnect.get())
         {
             if (connection == null || connection.getConnectionState() != HubConnectionState.CONNECTED)
             {
                 connect(false);
-                break;
             }
             try
             {
@@ -93,7 +93,6 @@ public class ChatChainHubConnection
         else
         {
             new Thread(this::waitForConnectedThread).start();
-
         }
     }
 
@@ -115,18 +114,29 @@ public class ChatChainHubConnection
             onConnectActionsOnce = new ArrayList<>();
         }
 
-        autoReconnect = true;
-
-        if (reconnectionThread == null || !reconnectionThread.isAlive())
+        if (reconnectionThread != null)
         {
-            reconnectionThread = new Thread(this::reconnectionThread);
-            reconnectionThread.start();
+            autoReconnect.set(false);
+            while (reconnectionThread.isAlive())
+            {
+                try
+                {
+                    Thread.sleep(100);
+                } catch (InterruptedException e)
+                {
+                    System.out.println("Problem creating auto reconnection thread: ");
+                    e.printStackTrace();
+                }
+            }
         }
+        autoReconnect.set(true);
+        reconnectionThread = new Thread(this::reconnectionThread);
+        reconnectionThread.start();
     }
 
     public void disconnect()
     {
-        autoReconnect = false;
+        autoReconnect.set(false);
         connection.stop().blockingAwait();
         connection = null;
     }
