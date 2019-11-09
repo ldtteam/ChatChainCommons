@@ -1,6 +1,9 @@
 package co.chatchain.commons;
 
-import co.chatchain.commons.messages.interfaces.messages.*;
+import co.chatchain.commons.objects.messages.*;
+import co.chatchain.commons.objects.requests.ClientEventRequest;
+import co.chatchain.commons.objects.requests.GenericMessageRequest;
+import co.chatchain.commons.objects.requests.UserEventRequest;
 import com.microsoft.signalr.Action1;
 import com.microsoft.signalr.HubConnection;
 import com.microsoft.signalr.HubConnectionBuilder;
@@ -9,11 +12,12 @@ import io.reactivex.Single;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ChatChainHubConnection
 {
     private HubConnection connection;
-    private Boolean autoReconnect = true;
+    private AtomicBoolean autoReconnect = new AtomicBoolean(true);
     private Thread reconnectionThread;
     private String apiURL;
     private AccessTokenResolver accessTokenResolver;
@@ -26,14 +30,13 @@ public class ChatChainHubConnection
         this.accessTokenResolver = accessTokenResolver;
     }
 
-    public void reconnectionThread()
+    private void reconnectionThread()
     {
-        while (autoReconnect)
+        while (autoReconnect.get())
         {
             if (connection == null || connection.getConnectionState() != HubConnectionState.CONNECTED)
             {
                 connect(false);
-                break;
             }
             try
             {
@@ -90,7 +93,6 @@ public class ChatChainHubConnection
         else
         {
             new Thread(this::waitForConnectedThread).start();
-
         }
     }
 
@@ -112,18 +114,29 @@ public class ChatChainHubConnection
             onConnectActionsOnce = new ArrayList<>();
         }
 
-        autoReconnect = true;
-
-        if (reconnectionThread == null || !reconnectionThread.isAlive())
+        if (reconnectionThread != null)
         {
-            reconnectionThread = new Thread(this::reconnectionThread);
-            reconnectionThread.start();
+            autoReconnect.set(false);
+            while (reconnectionThread.isAlive())
+            {
+                try
+                {
+                    Thread.sleep(100);
+                } catch (InterruptedException e)
+                {
+                    System.out.println("Problem creating auto reconnection thread: ");
+                    e.printStackTrace();
+                }
+            }
         }
+        autoReconnect.set(true);
+        reconnectionThread = new Thread(this::reconnectionThread);
+        reconnectionThread.start();
     }
 
     public void disconnect()
     {
-        autoReconnect = false;
+        autoReconnect.set(false);
         connection.stop().blockingAwait();
         connection = null;
     }
@@ -149,129 +162,100 @@ public class ChatChainHubConnection
         }
     }
 
-    public <T2 extends IGenericMessage> void onGenericMessage(Action1<T2> action, Class<T2> messageClass)
+    public void onGenericMessage(Action1<GenericMessageMessage> action)
     {
         if (connection != null)
         {
-            connection.on("ReceiveGenericMessage", action, messageClass);
+            connection.on("ReceiveGenericMessage", action, GenericMessageMessage.class);
         }
     }
 
-    public <T2 extends IGenericMessage> void sendGenericMessage(T2 message)
+    public Single<GenericMessageMessage> sendGenericMessage(GenericMessageRequest request)
     {
-        sendGenericMessage(message, true);
+        return sendGenericMessage(request, true);
     }
 
-    public <T2 extends IGenericMessage> void sendGenericMessage(T2 message, final boolean sendWhenConnected)
+    public Single<GenericMessageMessage> sendGenericMessage(GenericMessageRequest request, final boolean sendWhenConnected)
     {
         if (connection != null && connection.getConnectionState() == HubConnectionState.CONNECTED)
         {
-            connection.send("SendGenericMessage", message);
+            connection.invoke(GenericMessageMessage.class, "SendGenericMessage", request);
         }
         else if (sendWhenConnected)
         {
-            onConnectActionsOnce.add(connection -> connection.sendGenericMessage(message));
+            onConnectActionsOnce.add(connection -> connection.sendGenericMessage(request));
         }
+        return null;
     }
 
-    public <T2 extends IClientEventMessage> void onClientEventMessage(Action1<T2> action, Class<T2> messageClass)
+    public void onClientEventMessage(Action1<ClientEventMessage> action)
     {
         if (connection != null)
         {
-            connection.on("ReceiveClientEventMessage", action, messageClass);
+            connection.on("ReceiveClientEventMessage", action, ClientEventMessage.class);
         }
     }
 
-    public <T2 extends IClientEventMessage> void sendClientEventMessage(T2 message)
+    public Single<ClientEventMessage> sendClientEventMessage(ClientEventRequest request)
     {
-        sendClientEventMessage(message, true);
+        return sendClientEventMessage(request, true);
     }
 
-    public <T2 extends IClientEventMessage> void sendClientEventMessage(T2 message, final boolean sendWhenConnected)
+    public Single<ClientEventMessage> sendClientEventMessage(ClientEventRequest request, final boolean sendWhenConnected)
     {
         if (connection != null && connection.getConnectionState() == HubConnectionState.CONNECTED)
         {
-            connection.send("SendClientEventMessage", message);
+            return connection.invoke(ClientEventMessage.class, "SendClientEventMessage", request);
         }
         else if (sendWhenConnected)
         {
-            onConnectActionsOnce.add(connection -> connection.sendClientEventMessage(message));
+            onConnectActionsOnce.add(connection -> connection.sendClientEventMessage(request));
         }
+        return null;
     }
 
-    public <T2 extends IUserEventMessage> void onUserEventMessage(Action1<T2> action, Class<T2> messageClass)
+    public void onUserEventMessage(Action1<UserEventMessage> action)
     {
         if (connection != null)
         {
-            connection.on("ReceiveUserEventMessage", action, messageClass);
+            connection.on("ReceiveUserEventMessage", action, UserEventMessage.class);
         }
     }
 
-    public <T2 extends IUserEventMessage> void sendUserEventMessage(T2 message)
+    public Single<UserEventMessage> sendUserEventMessage(UserEventRequest request)
     {
-        sendUserEventMessage(message, true);
+        return sendUserEventMessage(request, true);
     }
 
-    public <T2 extends IUserEventMessage> void sendUserEventMessage(T2 message, final boolean sendWhenConnected)
-    {
-        if (connection != null && connection.getConnectionState() == HubConnectionState.CONNECTED)
-        {
-            connection.send("SendUserEventMessage", message);
-        }
-        else if (sendWhenConnected)
-        {
-            onConnectActionsOnce.add(connection -> connection.sendUserEventMessage(message));
-        }
-    }
-
-    public <T2 extends IGetGroupsResponse> void onGetGroupsResponse(Action1<T2> action, Class<T2> messageClass)
-    {
-        if (connection != null)
-        {
-            connection.on("ReceiveGroups", action, messageClass);
-        }
-    }
-
-    public void sendGetGroups()
-    {
-        sendGetGroups(true);
-    }
-
-    public void sendGetGroups(final boolean sendWhenConnected)
+    public Single<UserEventMessage> sendUserEventMessage(UserEventRequest request, final boolean sendWhenConnected)
     {
         if (connection != null && connection.getConnectionState() == HubConnectionState.CONNECTED)
         {
-            connection.send("GetGroups");
+            return connection.invoke(UserEventMessage.class, "SendUserEventMessage", request);
         }
         else if (sendWhenConnected)
         {
-            onConnectActionsOnce.add(ChatChainHubConnection::sendGetGroups);
+            onConnectActionsOnce.add(connection -> connection.sendUserEventMessage(request));
         }
+        return null;
     }
 
-    public <T2 extends IGetClientResponse> void onGetClientResponse(Action1<T2> action, Class<T2> messageClass)
-    {
-        if (connection != null)
-        {
-            connection.on("ReceiveClient", action, messageClass);
-        }
-    }
-
-    public void sendGetClient()
-    {
-        sendGetClient(true);
-    }
-
-    public void sendGetClient(final boolean sendWhenConnected)
+    public Single<GetGroupsMessage> sendGetGroups()
     {
         if (connection != null && connection.getConnectionState() == HubConnectionState.CONNECTED)
         {
-            connection.send("GetClient");
+            return connection.invoke(GetGroupsMessage.class, "GetGroups");
         }
-        else if (sendWhenConnected)
+        return null;
+    }
+
+    public Single<GetClientMessage> sendGetClient()
+    {
+        if (connection != null && connection.getConnectionState() == HubConnectionState.CONNECTED)
         {
-            onConnectActionsOnce.add(ChatChainHubConnection::sendGetClient);
+            return connection.invoke(GetClientMessage.class, "GetClient");
         }
+        return null;
     }
 
 }
