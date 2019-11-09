@@ -2,6 +2,8 @@ package co.chatchain.commons.objects.messages;
 
 import co.chatchain.commons.objects.Client;
 import co.chatchain.commons.objects.Group;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 import java.util.List;
@@ -9,18 +11,27 @@ import java.util.List;
 public class ClientEventMessage
 {
 
+    @NotNull
     private Client sendingClient;
+    @NotNull
     private String clientId;
+    @NotNull
     private Group group;
+    @Nullable
     private List<Group> groups;
+    @Nullable
     private String event;
+    @Nullable
     private Map<String, String> EventData;
 
-    public ClientEventMessage()
+    public ClientEventMessage(@NotNull final Client sendingClient, @NotNull final String clientId, @NotNull final Group group)
     {
+        this.sendingClient = sendingClient;
+        this.clientId = clientId;
+        this.group = group;
     }
 
-    public ClientEventMessage(final Client sendingClient, final String clientId, final Group group, final List<Group> groups, final String event, final Map<String, String> eventData)
+    public ClientEventMessage(@NotNull final Client sendingClient, @NotNull final String clientId, @NotNull final Group group, @Nullable final List<Group> groups, @Nullable final String event, @Nullable final Map<String, String> eventData)
     {
         this.sendingClient = sendingClient;
         this.clientId = clientId;
@@ -30,62 +41,68 @@ public class ClientEventMessage
         EventData = eventData;
     }
 
+    @NotNull
     public Client getSendingClient()
     {
         return sendingClient;
     }
 
-    public void setSendingClient(final Client sendingClient)
+    public void setSendingClient(@NotNull final Client sendingClient)
     {
         this.sendingClient = sendingClient;
     }
 
+    @NotNull
     public String getClientId()
     {
         return clientId;
     }
 
-    public void setClientId(final String clientId)
+    public void setClientId(@NotNull final String clientId)
     {
         this.clientId = clientId;
     }
 
+    @NotNull
     public Group getGroup()
     {
         return group;
     }
 
-    public void setGroup(final Group group)
+    public void setGroup(@NotNull final Group group)
     {
         this.group = group;
     }
 
+    @Nullable
     public List<Group> getGroups()
     {
         return groups;
     }
 
-    public void setGroups(final List<Group> groups)
+    public void setGroups(@Nullable final List<Group> groups)
     {
         this.groups = groups;
     }
 
+    @Nullable
     public String getEvent()
     {
         return event;
     }
 
-    public void setEvent(final String event)
+    public void setEvent(@Nullable final String event)
     {
         this.event = event;
     }
 
+    @Nullable
     public Map<String, String> getEventData()
     {
         return EventData;
     }
 
-    public void setEventData(final Map<String, String> eventData)
+    public void setEventData(@Nullable final Map<String, String> eventData)
     {
         EventData = eventData;
     }

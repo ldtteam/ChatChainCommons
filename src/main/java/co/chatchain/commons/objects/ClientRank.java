@@ -1,19 +1,25 @@
 package co.chatchain.commons.objects;
 
+import org.jetbrains.annotations.Nullable;
+
 public class ClientRank
 {
 
+    @Nullable
     private String name;
+    @Nullable
     private String uniqueId;
     private int priority;
+    @Nullable
     private String display;
+    @Nullable
     private String colour;
 
     public ClientRank()
     {
     }
 
-    public ClientRank(final String name, final String uniqueId, final int priority, final String display, final String colour)
+    public ClientRank(@Nullable final String name, @Nullable final String uniqueId, final int priority, @Nullable final String display, @Nullable final String colour)
     {
         this.name = name;
         this.uniqueId = uniqueId;
@@ -22,22 +28,24 @@ public class ClientRank
         this.colour = colour;
     }
 
+    @Nullable
     public String getName()
     {
         return name;
     }
 
-    public void setName(final String name)
+    public void setName(@Nullable final String name)
     {
         this.name = name;
     }
 
+    @Nullable
     public String getUniqueId()
     {
         return uniqueId;
     }
 
-    public void setUniqueId(final String uniqueId)
+    public void setUniqueId(@Nullable final String uniqueId)
     {
         this.uniqueId = uniqueId;
     }
@@ -52,22 +60,24 @@ public class ClientRank
         this.priority = priority;
     }
 
+    @Nullable
     public String getDisplay()
     {
         return display;
     }
 
-    public void setDisplay(final String display)
+    public void setDisplay(@Nullable final String display)
     {
         this.display = display;
     }
 
+    @Nullable
     public String getColour()
     {
         return colour;
     }
 
-    public void setColour(final String colour)
+    public void setColour(@Nullable final String colour)
     {
         this.colour = colour;
     }

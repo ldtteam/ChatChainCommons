@@ -1,21 +1,31 @@
 package co.chatchain.commons.objects;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.List;
 
 public class Group
 {
 
+    @NotNull
     private String id;
+    @NotNull
     private String ownerId;
+    @Nullable
     private String name;
+    @Nullable
     private String description;
+    @Nullable
     private List<String> clientIds;
 
-    public Group()
+    public Group(@NotNull final String id, @NotNull final String ownerId)
     {
+        this.id = id;
+        this.ownerId = ownerId;
     }
 
-    public Group(final String id, final String ownerId, final String name, final String description, final List<String> clientIds)
+    public Group(@NotNull final String id, @NotNull final String ownerId, @Nullable final String name, @Nullable final String description, @Nullable final List<String> clientIds)
     {
         this.id = id;
         this.ownerId = ownerId;
@@ -24,52 +34,57 @@ public class Group
         this.clientIds = clientIds;
     }
 
+    @NotNull
     public String getId()
     {
         return id;
     }
 
-    public void setId(final String id)
+    public void setId(@NotNull final String id)
     {
         this.id = id;
     }
 
+    @NotNull
     public String getOwnerId()
     {
         return ownerId;
     }
 
-    public void setOwnerId(final String ownerId)
+    public void setOwnerId(@NotNull final String ownerId)
     {
         this.ownerId = ownerId;
     }
 
+    @Nullable
     public String getName()
     {
         return name;
     }
 
-    public void setName(final String name)
+    public void setName(@Nullable final String name)
     {
         this.name = name;
     }
 
+    @Nullable
     public String getDescription()
     {
         return description;
     }
 
-    public void setDescription(final String description)
+    public void setDescription(@Nullable final String description)
     {
         this.description = description;
     }
 
+    @Nullable
     public List<String> getClientIds()
     {
         return clientIds;
     }
 
-    public void setClientIds(final List<String> clientIds)
+    public void setClientIds(@Nullable final List<String> clientIds)
     {
         this.clientIds = clientIds;
     }
