@@ -15,6 +15,10 @@ public class Client
     @Nullable
     private String description;
 
+    public Client()
+    {
+    }
+
     public Client(@NotNull final String id, @NotNull final String ownerId)
     {
         this.id = id;

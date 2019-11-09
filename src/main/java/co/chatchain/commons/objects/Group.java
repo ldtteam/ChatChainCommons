@@ -19,6 +19,10 @@ public class Group
     @Nullable
     private List<String> clientIds;
 
+    public Group()
+    {
+    }
+
     public Group(@NotNull final String id, @NotNull final String ownerId)
     {
         this.id = id;
