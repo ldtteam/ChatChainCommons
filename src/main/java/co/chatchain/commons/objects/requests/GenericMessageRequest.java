@@ -14,6 +14,10 @@ public class GenericMessageRequest
     @Nullable
     private ClientUser clientUser;
 
+    public GenericMessageRequest()
+    {
+    }
+
     public GenericMessageRequest(@NotNull final String groupId, @NotNull final String message)
     {
         this.groupId = groupId;

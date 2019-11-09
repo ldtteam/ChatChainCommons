@@ -10,6 +10,10 @@ public class GetGroupsMessage
     @NotNull
     private List<Group> groups;
 
+    public GetGroupsMessage()
+    {
+    }
+
     public GetGroupsMessage(@NotNull final List<Group> groups)
     {
         this.groups = groups;

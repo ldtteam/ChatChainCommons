@@ -20,6 +20,10 @@ public class GenericMessageMessage
     @Nullable
     private ClientUser clientUser;
 
+    public GenericMessageMessage()
+    {
+    }
+
     public GenericMessageMessage(@NotNull final Client sendingClient, @NotNull final String clientId, @NotNull final Group group, @NotNull final String message)
     {
         this.sendingClient = sendingClient;

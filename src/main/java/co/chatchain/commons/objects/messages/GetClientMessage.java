@@ -8,6 +8,10 @@ public class GetClientMessage
     @NotNull
     private Client client;
 
+    public GetClientMessage()
+    {
+    }
+
     public GetClientMessage(@NotNull final Client client)
     {
         this.client = client;

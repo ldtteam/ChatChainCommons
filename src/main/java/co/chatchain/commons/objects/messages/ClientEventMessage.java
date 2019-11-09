@@ -24,6 +24,10 @@ public class ClientEventMessage
     @Nullable
     private Map<String, String> EventData;
 
+    public ClientEventMessage()
+    {
+    }
+
     public ClientEventMessage(@NotNull final Client sendingClient, @NotNull final String clientId, @NotNull final Group group)
     {
         this.sendingClient = sendingClient;
