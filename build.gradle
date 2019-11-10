@@ -36,6 +36,8 @@ dependencies {
 
     compile('com.microsoft.signalr:signalr:1.0.2')
 
+    compile('com.google.inject:guice:4.2.2')
+
     compile('com.intellij:annotations:+@jar')
 }
 

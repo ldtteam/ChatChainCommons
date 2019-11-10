@@ -1,4 +1,4 @@
-package co.chatchain.commons.objects.requests;
+package co.chatchain.commons.core.entites.requests;
 
 import org.jetbrains.annotations.Nullable;
 

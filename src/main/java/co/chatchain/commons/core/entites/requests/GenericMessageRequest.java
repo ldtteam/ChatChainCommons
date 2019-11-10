@@ -1,6 +1,6 @@
-package co.chatchain.commons.objects.requests;
+package co.chatchain.commons.core.entites.requests;
 
-import co.chatchain.commons.objects.ClientUser;
+import co.chatchain.commons.core.entites.ClientUser;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

@@ -1,18 +1,22 @@
-package co.chatchain.commons.objects.messages;
+package co.chatchain.commons.core.entites.messages;
 
-import co.chatchain.commons.objects.Client;
-import co.chatchain.commons.objects.Group;
+import co.chatchain.commons.core.entites.Client;
+import co.chatchain.commons.core.entites.ClientUser;
+import co.chatchain.commons.core.entites.Group;
+import co.chatchain.commons.core.interfaces.IMessage;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 import java.util.List;
 
-public class ClientEventMessage
+public class UserEventMessage implements IMessage
 {
 
     @NotNull
     private Client sendingClient;
+    @NotNull
+    private ClientUser clientUser;
     @NotNull
     private String clientId;
     @NotNull
@@ -24,20 +28,22 @@ public class ClientEventMessage
     @Nullable
     private Map<String, String> EventData;
 
-    public ClientEventMessage()
+    public UserEventMessage()
     {
     }
 
-    public ClientEventMessage(@NotNull final Client sendingClient, @NotNull final String clientId, @NotNull final Group group)
+    public UserEventMessage(@NotNull final Client sendingClient, @NotNull final ClientUser clientUser, @NotNull final String clientId, @NotNull final Group group)
     {
         this.sendingClient = sendingClient;
+        this.clientUser = clientUser;
         this.clientId = clientId;
         this.group = group;
     }
 
-    public ClientEventMessage(@NotNull final Client sendingClient, @NotNull final String clientId, @NotNull final Group group, @Nullable final List<Group> groups, @Nullable final String event, @Nullable final Map<String, String> eventData)
+    public UserEventMessage(@NotNull final Client sendingClient, @NotNull final ClientUser clientUser, @NotNull final String clientId, @NotNull final Group group, @Nullable final List<Group> groups, @Nullable final String event, @Nullable final Map<String, String> eventData)
     {
         this.sendingClient = sendingClient;
+        this.clientUser = clientUser;
         this.clientId = clientId;
         this.group = group;
         this.groups = groups;
@@ -54,6 +60,17 @@ public class ClientEventMessage
     public void setSendingClient(@NotNull final Client sendingClient)
     {
         this.sendingClient = sendingClient;
+    }
+
+    @NotNull
+    public ClientUser getClientUser()
+    {
+        return clientUser;
+    }
+
+    public void setClientUser(@NotNull final ClientUser clientUser)
+    {
+        this.clientUser = clientUser;
     }
 
     @NotNull

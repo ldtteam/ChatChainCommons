@@ -1,9 +1,9 @@
 package co.chatchain.commons;
 
-import co.chatchain.commons.objects.messages.*;
-import co.chatchain.commons.objects.requests.ClientEventRequest;
-import co.chatchain.commons.objects.requests.GenericMessageRequest;
-import co.chatchain.commons.objects.requests.UserEventRequest;
+import co.chatchain.commons.core.entites.messages.*;
+import co.chatchain.commons.core.entites.requests.ClientEventRequest;
+import co.chatchain.commons.core.entites.requests.GenericMessageRequest;
+import co.chatchain.commons.core.entites.requests.UserEventRequest;
 import com.microsoft.signalr.Action1;
 import com.microsoft.signalr.HubConnection;
 import com.microsoft.signalr.HubConnectionBuilder;

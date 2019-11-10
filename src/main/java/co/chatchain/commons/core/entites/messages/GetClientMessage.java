@@ -1,9 +1,10 @@
-package co.chatchain.commons.objects.messages;
+package co.chatchain.commons.core.entites.messages;
 
-import co.chatchain.commons.objects.Client;
+import co.chatchain.commons.core.entites.Client;
+import co.chatchain.commons.core.interfaces.IMessage;
 import org.jetbrains.annotations.NotNull;
 
-public class GetClientMessage
+public class GetClientMessage implements IMessage
 {
     @NotNull
     private Client client;

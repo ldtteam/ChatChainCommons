@@ -1,4 +1,4 @@
-package co.chatchain.commons.objects;
+package co.chatchain.commons.core.entites;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
