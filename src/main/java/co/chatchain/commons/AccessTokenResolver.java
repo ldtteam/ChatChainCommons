@@ -1,7 +1,10 @@
 package co.chatchain.commons;
 
+import co.chatchain.commons.interfaces.IAccessTokenResolver;
+import co.chatchain.commons.interfaces.IConnectionConfig;
 import org.json.JSONObject;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.*;
@@ -11,30 +14,28 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.StringJoiner;
 
-public class AccessTokenResolver
+public class AccessTokenResolver implements IAccessTokenResolver
 {
 
-    private String clientId;
-    private String clientPassword;
-    private URL identityUrl;
+    private final IConnectionConfig connectionConfig;
 
-    public AccessTokenResolver(final String clientId, final String clientPassword, final String identityUrl) throws MalformedURLException
+    @Inject
+    public AccessTokenResolver(IConnectionConfig connectionConfig)
     {
-        this.clientId = clientId;
-        this.clientPassword = clientPassword;
-        this.identityUrl = new URL(identityUrl);
+        this.connectionConfig = connectionConfig;
     }
 
+    @Override
     public String getAccessToken() throws IOException
     {
-        URLConnection con = identityUrl.openConnection();
+        URLConnection con = connectionConfig.getIdentityUrl().openConnection();
         HttpURLConnection http = (HttpURLConnection) con;
         http.setRequestMethod("POST");
         http.setDoOutput(true);
 
         Map<String, String> arguments = new HashMap<>();
-        arguments.put("client_id", clientId);
-        arguments.put("client_secret", clientPassword);
+        arguments.put("client_id", connectionConfig.getClientId());
+        arguments.put("client_secret", connectionConfig.getClientSecret());
         arguments.put("grant_type", "client_credentials");
         StringJoiner sj = new StringJoiner("&");
         for (Map.Entry<String, String> entry : arguments.entrySet())

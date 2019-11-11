@@ -1,7 +1,8 @@
 package co.chatchain.commons.core.interfaces;
 
-import co.chatchain.commons.core.entites.Group;
+import co.chatchain.commons.core.entities.Group;
 
+@SuppressWarnings("SameReturnValue")
 public interface IMessageSender
 {
 

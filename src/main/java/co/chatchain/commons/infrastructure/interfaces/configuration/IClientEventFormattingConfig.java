@@ -1,8 +1,10 @@
 package co.chatchain.commons.infrastructure.interfaces.configuration;
 
-import co.chatchain.commons.core.entites.messages.ClientEventMessage;
+import co.chatchain.commons.core.entities.messages.ClientEventMessage;
+
+import java.util.List;
 
 public interface IClientEventFormattingConfig
 {
-    String[] getClientEventFormattingString(final ClientEventMessage message);
+    List<String> getClientEventFormattingString(final ClientEventMessage message);
 }

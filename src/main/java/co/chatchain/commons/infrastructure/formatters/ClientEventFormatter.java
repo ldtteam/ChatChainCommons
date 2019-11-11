@@ -1,6 +1,6 @@
 package co.chatchain.commons.infrastructure.formatters;
 
-import co.chatchain.commons.core.entites.messages.ClientEventMessage;
+import co.chatchain.commons.core.entities.messages.ClientEventMessage;
 import co.chatchain.commons.core.interfaces.formatters.IClientEventFormatter;
 import co.chatchain.commons.infrastructure.interfaces.configuration.IClientEventFormattingConfig;
 import co.chatchain.commons.infrastructure.interfaces.replacements.IClientReplacements;

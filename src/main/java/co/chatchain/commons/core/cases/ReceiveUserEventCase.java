@@ -1,6 +1,6 @@
 package co.chatchain.commons.core.cases;
 
-import co.chatchain.commons.core.entites.messages.UserEventMessage;
+import co.chatchain.commons.core.entities.messages.UserEventMessage;
 import co.chatchain.commons.core.interfaces.IMessageSender;
 import co.chatchain.commons.core.interfaces.cases.IReceiveUserEventCase;
 import co.chatchain.commons.core.interfaces.formatters.IUserEventFormatter;
@@ -20,7 +20,7 @@ public class ReceiveUserEventCase implements IReceiveUserEventCase
     }
 
     @Override
-    public boolean Handle(final UserEventMessage message)
+    public boolean handle(final UserEventMessage message)
     {
         return messageSender.sendMessage(userEventFormatter.format(message), message.getGroup());
     }

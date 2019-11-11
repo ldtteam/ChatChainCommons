@@ -1,6 +1,6 @@
 package co.chatchain.commons.core.interfaces.formatters;
 
-import co.chatchain.commons.core.entites.messages.UserEventMessage;
+import co.chatchain.commons.core.entities.messages.UserEventMessage;
 
 public interface IUserEventFormatter
 {

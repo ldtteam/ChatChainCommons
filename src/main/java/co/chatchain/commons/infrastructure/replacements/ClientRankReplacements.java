@@ -1,6 +1,6 @@
 package co.chatchain.commons.infrastructure.replacements;
 
-import co.chatchain.commons.core.entites.ClientRank;
+import co.chatchain.commons.core.entities.ClientRank;
 import co.chatchain.commons.infrastructure.interfaces.replacements.IClientRankReplacements;
 import org.jetbrains.annotations.Nullable;
 
@@ -12,8 +12,8 @@ public enum ClientRankReplacements
     DISPLAY("client-rank-display", ClientRank::getDisplay),
     COLOUR("client-rank-colour", ClientRank::getColour);
 
-    final String replacement;
-    final ClientRankReplacementAction action;
+    private final String replacement;
+    private final ClientRankReplacementAction action;
 
     ClientRankReplacements(final String replacement, final ClientRankReplacementAction action)
     {
@@ -22,7 +22,7 @@ public enum ClientRankReplacements
     }
 
     @Nullable
-    public String GetReplacementObject(final ClientRank rank)
+    private String GetReplacementObject(final ClientRank rank)
     {
         if (rank == null)
             return null;
@@ -30,7 +30,7 @@ public enum ClientRankReplacements
         return this.action.invoke(rank);
     }
 
-    public String getReplacement()
+    private String getReplacement()
     {
         return replacement;
     }
@@ -41,7 +41,7 @@ public enum ClientRankReplacements
     }
 
     @Nullable
-    public static ClientRankReplacements GetFromReplacement(final String replacementString)
+    private static ClientRankReplacements GetFromReplacement(final String replacementString)
     {
         for (final ClientRankReplacements rankReplacement : values())
         {

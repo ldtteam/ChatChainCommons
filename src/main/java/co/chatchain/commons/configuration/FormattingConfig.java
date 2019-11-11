@@ -1,29 +1,46 @@
 package co.chatchain.commons.configuration;
 
-import co.chatchain.commons.core.entites.messages.ClientEventMessage;
-import co.chatchain.commons.core.entites.messages.GenericMessageMessage;
-import co.chatchain.commons.core.entites.messages.UserEventMessage;
-import co.chatchain.commons.infrastructure.interfaces.configuration.IClientEventFormattingConfig;
-import co.chatchain.commons.infrastructure.interfaces.configuration.IGenericMessageFormattingConfig;
-import co.chatchain.commons.infrastructure.interfaces.configuration.IUserEventFormattingConfig;
+import co.chatchain.commons.configuration.formats.DefaultFormats;
+import co.chatchain.commons.configuration.formats.MessageFormats;
+import co.chatchain.commons.core.entities.messages.ClientEventMessage;
+import co.chatchain.commons.core.entities.messages.GenericMessageMessage;
+import co.chatchain.commons.core.entities.messages.UserEventMessage;
+import co.chatchain.commons.infrastructure.interfaces.configuration.IFormattingConfig;
+import ninja.leaping.configurate.objectmapping.Setting;
+import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable;
 
-public class FormattingConfig implements IClientEventFormattingConfig, IGenericMessageFormattingConfig, IUserEventFormattingConfig
+import java.util.ArrayList;
+import java.util.List;
+
+@SuppressWarnings("CanBeFinal")
+@ConfigSerializable
+public class FormattingConfig extends AbstractConfig implements IFormattingConfig
 {
+
+    @Setting("default-formats")
+    private MessageFormats formats = new DefaultFormats();
+
     @Override
-    public String[] getClientEventFormattingString(final ClientEventMessage message)
+    public List<String> getClientEventFormattingString(final ClientEventMessage message)
     {
-        return new String[] {"[{group-name}] ", "{client-name} has connected"};
+        if (message.getEvent() == null || !formats.getClientEventMessages().containsKey(message.getEvent().toUpperCase()))
+            return new ArrayList<>();
+
+        return formats.getClientEventMessages().get(message.getEvent().toUpperCase());
     }
 
     @Override
-    public String[] getGenericMessageFormattingString(final GenericMessageMessage message)
+    public List<String> getGenericMessageFormattingString(final GenericMessageMessage message)
     {
-        return new String[] {"[{client-name}] ", "[{client-rank-display}] ", "<{client-user-nickname||client-user-name}>: {message}"};
+        return formats.getGenericMessage();
     }
 
     @Override
-    public String[] getUserEventFormattingString(final UserEventMessage message)
+    public List<String> getUserEventFormattingString(final UserEventMessage message)
     {
-        return new String[] {"[{group-name}] ", "[{client-name}] ", "{client-user-nickname||client-user-name} has logged in"};
+        if (message.getEvent() == null || !formats.getUserEventMessages().containsKey(message.getEvent().toUpperCase()))
+            return new ArrayList<>();
+
+        return formats.getUserEventMessages().get(message.getEvent().toUpperCase());
     }
 }

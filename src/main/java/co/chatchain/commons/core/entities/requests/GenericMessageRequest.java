@@ -1,9 +1,10 @@
-package co.chatchain.commons.core.entites.requests;
+package co.chatchain.commons.core.entities.requests;
 
-import co.chatchain.commons.core.entites.ClientUser;
+import co.chatchain.commons.core.entities.ClientUser;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+@SuppressWarnings("NullableProblems")
 public class GenericMessageRequest
 {
 

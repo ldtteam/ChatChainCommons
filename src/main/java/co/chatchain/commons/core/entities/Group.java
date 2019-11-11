@@ -1,9 +1,12 @@
-package co.chatchain.commons.core.entites;
+package co.chatchain.commons.core.entities;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class Client
+import java.util.List;
+
+@SuppressWarnings("NullableProblems")
+public class Group
 {
 
     @NotNull
@@ -14,23 +17,26 @@ public class Client
     private String name;
     @Nullable
     private String description;
+    @Nullable
+    private List<String> clientIds;
 
-    public Client()
+    public Group()
     {
     }
 
-    public Client(@NotNull final String id, @NotNull final String ownerId)
+    public Group(@NotNull final String id, @NotNull final String ownerId)
     {
         this.id = id;
         this.ownerId = ownerId;
     }
 
-    public Client(@NotNull final String id, @NotNull final String ownerId, @Nullable final String name, @Nullable final String description)
+    public Group(@NotNull final String id, @NotNull final String ownerId, @Nullable final String name, @Nullable final String description, @Nullable final List<String> clientIds)
     {
         this.id = id;
         this.ownerId = ownerId;
         this.name = name;
         this.description = description;
+        this.clientIds = clientIds;
     }
 
     @NotNull
@@ -75,5 +81,16 @@ public class Client
     public void setDescription(@Nullable final String description)
     {
         this.description = description;
+    }
+
+    @Nullable
+    public List<String> getClientIds()
+    {
+        return clientIds;
+    }
+
+    public void setClientIds(@Nullable final List<String> clientIds)
+    {
+        this.clientIds = clientIds;
     }
 }

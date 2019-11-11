@@ -1,7 +1,7 @@
 package co.chatchain.commons.infrastructure.formatters;
 
-import co.chatchain.commons.core.entites.ClientRank;
-import co.chatchain.commons.core.entites.messages.UserEventMessage;
+import co.chatchain.commons.core.entities.ClientRank;
+import co.chatchain.commons.core.entities.messages.UserEventMessage;
 import co.chatchain.commons.core.interfaces.formatters.IUserEventFormatter;
 import co.chatchain.commons.infrastructure.interfaces.configuration.IUserEventFormattingConfig;
 import co.chatchain.commons.infrastructure.interfaces.replacements.IClientRankReplacements;

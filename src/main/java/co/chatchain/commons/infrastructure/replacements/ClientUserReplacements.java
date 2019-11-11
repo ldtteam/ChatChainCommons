@@ -1,6 +1,6 @@
 package co.chatchain.commons.infrastructure.replacements;
 
-import co.chatchain.commons.core.entites.ClientUser;
+import co.chatchain.commons.core.entities.ClientUser;
 import co.chatchain.commons.infrastructure.interfaces.replacements.IClientUserReplacements;
 import org.jetbrains.annotations.Nullable;
 
@@ -11,8 +11,8 @@ public enum ClientUserReplacements
     NICKNAME("client-user-nickname", ClientUser::getNickName),
     COLOUR("client-user-colour", ClientUser::getColour);
 
-    final String replacement;
-    final UserReplacementAction action;
+    private final String replacement;
+    private final UserReplacementAction action;
 
     ClientUserReplacements(final String replacement, final UserReplacementAction action)
     {
@@ -21,7 +21,7 @@ public enum ClientUserReplacements
     }
 
     @Nullable
-    public String GetReplacementObject(final ClientUser user)
+    private String GetReplacementObject(final ClientUser user)
     {
         if (user == null)
             return null;
@@ -29,7 +29,7 @@ public enum ClientUserReplacements
         return this.action.invoke(user);
     }
 
-    public String getReplacement()
+    private String getReplacement()
     {
         return replacement;
     }
@@ -40,7 +40,7 @@ public enum ClientUserReplacements
     }
 
     @Nullable
-    public static ClientUserReplacements GetFromReplacement(final String replacementString)
+    private static ClientUserReplacements GetFromReplacement(final String replacementString)
     {
         for (final ClientUserReplacements userReplacement : values())
         {

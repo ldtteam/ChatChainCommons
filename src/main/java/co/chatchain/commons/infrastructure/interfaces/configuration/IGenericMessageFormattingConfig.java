@@ -1,8 +1,10 @@
 package co.chatchain.commons.infrastructure.interfaces.configuration;
 
-import co.chatchain.commons.core.entites.messages.GenericMessageMessage;
+import co.chatchain.commons.core.entities.messages.GenericMessageMessage;
+
+import java.util.List;
 
 public interface IGenericMessageFormattingConfig
 {
-    String[] getGenericMessageFormattingString(final GenericMessageMessage message);
+    List<String> getGenericMessageFormattingString(final GenericMessageMessage message);
 }

@@ -36,6 +36,8 @@ dependencies {
 
     compile('com.microsoft.signalr:signalr:1.0.2')
 
+    compile('ninja.leaping.configurate:configurate-gson:3.3')
+
     compile('com.google.inject:guice:4.2.2')
 
     compile('com.intellij:annotations:+@jar')

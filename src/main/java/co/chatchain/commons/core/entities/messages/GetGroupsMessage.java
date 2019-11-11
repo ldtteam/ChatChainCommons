@@ -1,11 +1,12 @@
-package co.chatchain.commons.core.entites.messages;
+package co.chatchain.commons.core.entities.messages;
 
-import co.chatchain.commons.core.entites.Group;
+import co.chatchain.commons.core.entities.Group;
 import co.chatchain.commons.core.interfaces.IMessage;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
+@SuppressWarnings("NullableProblems")
 public class GetGroupsMessage implements IMessage
 {
     @NotNull

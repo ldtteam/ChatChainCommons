@@ -1,15 +1,16 @@
 package co.chatchain.commons.infrastructure.replacements;
 
-import co.chatchain.commons.core.entites.messages.GenericMessageMessage;
+import co.chatchain.commons.core.entities.messages.GenericMessageMessage;
 import co.chatchain.commons.infrastructure.interfaces.replacements.IGenericMessageReplacements;
 import org.jetbrains.annotations.Nullable;
 
+@SuppressWarnings("SameParameterValue")
 public enum GenericMessageReplacements
 {
-    MESSAGE("message",GenericMessageMessage::getMessage);
+    MESSAGE("message", GenericMessageMessage::getMessage);
 
-    final String replacement;
-    final GenericMessageReplacementAction action;
+    private final String replacement;
+    private final GenericMessageReplacementAction action;
 
     GenericMessageReplacements(final String replacement, final GenericMessageReplacementAction action)
     {
@@ -18,7 +19,7 @@ public enum GenericMessageReplacements
     }
 
     @Nullable
-    public String GetReplacementObject(final GenericMessageMessage genericMessage)
+    private String GetReplacementObject(final GenericMessageMessage genericMessage)
     {
         if (genericMessage == null)
             return null;
@@ -26,7 +27,7 @@ public enum GenericMessageReplacements
         return this.action.invoke(genericMessage);
     }
 
-    public String getReplacement()
+    private String getReplacement()
     {
         return replacement;
     }
@@ -37,7 +38,7 @@ public enum GenericMessageReplacements
     }
 
     @Nullable
-    public static GenericMessageReplacements GetFromReplacement(final String replacementString)
+    private static GenericMessageReplacements GetFromReplacement(final String replacementString)
     {
         for (final GenericMessageReplacements genericMessageReplacement : values())
         {

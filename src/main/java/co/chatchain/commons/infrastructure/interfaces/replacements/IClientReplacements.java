@@ -1,6 +1,6 @@
 package co.chatchain.commons.infrastructure.interfaces.replacements;
 
-import co.chatchain.commons.core.entites.Client;
+import co.chatchain.commons.core.entities.Client;
 import org.jetbrains.annotations.Nullable;
 
 public interface IClientReplacements

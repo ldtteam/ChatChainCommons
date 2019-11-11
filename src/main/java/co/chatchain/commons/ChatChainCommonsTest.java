@@ -5,29 +5,42 @@ import co.chatchain.commons.core.CoreModule;
 import co.chatchain.commons.core.cases.ReceiveClientEventCase;
 import co.chatchain.commons.core.cases.ReceiveGenericMessageCase;
 import co.chatchain.commons.core.cases.ReceiveUserEventCase;
-import co.chatchain.commons.core.entites.Client;
-import co.chatchain.commons.core.entites.ClientRank;
-import co.chatchain.commons.core.entites.ClientUser;
-import co.chatchain.commons.core.entites.Group;
-import co.chatchain.commons.core.entites.messages.ClientEventMessage;
-import co.chatchain.commons.core.entites.messages.GenericMessageMessage;
-import co.chatchain.commons.core.entites.messages.UserEventMessage;
+import co.chatchain.commons.core.entities.Client;
+import co.chatchain.commons.core.entities.ClientRank;
+import co.chatchain.commons.core.entities.ClientUser;
+import co.chatchain.commons.core.entities.Group;
+import co.chatchain.commons.core.entities.messages.ClientEventMessage;
+import co.chatchain.commons.core.entities.messages.GenericMessageMessage;
+import co.chatchain.commons.core.entities.messages.UserEventMessage;
 import co.chatchain.commons.core.interfaces.IMessageSender;
 import co.chatchain.commons.infrastructure.InfrastructureModule;
-import co.chatchain.commons.infrastructure.interfaces.configuration.IClientEventFormattingConfig;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
 
 public class ChatChainCommonsTest
 {
     public static void main(String[] args)
     {
-        Injector injector = Guice.createInjector(new CoreModule(), new InfrastructureModule(), new ConfigurationModule(), new TestingModule());
+        File configDir = new File(System.getProperty("user.dir") + "/configs/");
+
+        if (!configDir.exists())
+        {
+            //noinspection ResultOfMethodCallIgnored
+            configDir.mkdirs();
+
+            if (!configDir.getParentFile().exists())
+            {
+                System.out.println("Couldn't create config directory!");
+                new IOException().printStackTrace();
+            }
+        }
+
+        Injector injector = Guice.createInjector(new CoreModule(), new InfrastructureModule(), new ConfigurationModule(configDir.toPath().resolve("formatting.json"), true), new TestingModule());
 
         final Client sendingClient = new Client("sending-client-id", "sending-client-owner-id", "sending-client-name", "sending-client-description");
         final Group sendingGroup = new Group("sending-group-id", "sending-group-owner-id", "sending-group-name", "sending-group-description", new ArrayList<>());
@@ -41,11 +54,11 @@ public class ChatChainCommonsTest
                 new HashMap<>());
 
         ReceiveClientEventCase receiveClientEventCase = injector.getInstance(ReceiveClientEventCase.class);
-        receiveClientEventCase.Handle(clientEventMessage);
+        receiveClientEventCase.handle(clientEventMessage);
 
         final ClientRank clientRank = new ClientRank("sending-client-user-rank-name", "sending-client-user-rank-unique-id", 0, "sending-client-user-rank-display", "sending-client-user-rank-colour");
 
-        final ClientUser clientUser = new ClientUser("sending-client-user-name", "sending-client-user-unique-id", "sending-client-user-nick-name", "sending-client-user-colour", Collections.singletonList(clientRank));
+        final ClientUser clientUser = new ClientUser("sending-client-user-name", "sending-client-user-unique-id", null, "sending-client-user-colour", Collections.singletonList(clientRank));
 
         final GenericMessageMessage genericMessageMessage = new GenericMessageMessage(
                 sendingClient,
@@ -55,7 +68,7 @@ public class ChatChainCommonsTest
                 clientUser);
 
         ReceiveGenericMessageCase receiveGenericMessageCase = injector.getInstance(ReceiveGenericMessageCase.class);
-        receiveGenericMessageCase.Handle(genericMessageMessage);
+        receiveGenericMessageCase.handle(genericMessageMessage);
 
         final UserEventMessage userEventMessage = new UserEventMessage(
                 sendingClient,
@@ -67,7 +80,7 @@ public class ChatChainCommonsTest
                 new HashMap<>());
 
         ReceiveUserEventCase receiveUserEventCase = injector.getInstance(ReceiveUserEventCase.class);
-        receiveUserEventCase.Handle(userEventMessage);
+        receiveUserEventCase.handle(userEventMessage);
     }
 
     public static class MessageSender implements IMessageSender
@@ -80,16 +93,7 @@ public class ChatChainCommonsTest
         }
     }
 
-    public static class ClientEventFormattingConfig implements IClientEventFormattingConfig
-    {
-        @Override
-        public String[] getClientEventFormattingString(final ClientEventMessage message)
-        {
-            return new String[] {"[{group-name}] ", "{client-name} has connected"};
-        }
-    }
-
-    public static class TestingModule extends AbstractModule
+    protected static class TestingModule extends AbstractModule
     {
         @Override
         protected void configure()

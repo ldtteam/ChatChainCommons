@@ -1,7 +1,7 @@
 package co.chatchain.commons.infrastructure.formatters;
 
-import co.chatchain.commons.core.entites.ClientRank;
-import co.chatchain.commons.core.entites.messages.GenericMessageMessage;
+import co.chatchain.commons.core.entities.ClientRank;
+import co.chatchain.commons.core.entities.messages.GenericMessageMessage;
 import co.chatchain.commons.core.interfaces.formatters.IGenericMessageFormatter;
 import co.chatchain.commons.infrastructure.interfaces.configuration.IGenericMessageFormattingConfig;
 import co.chatchain.commons.infrastructure.interfaces.replacements.*;

@@ -1,12 +1,14 @@
 package co.chatchain.commons.infrastructure.utils;
 
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class FormattingUtils
 {
     private static final Pattern MOTHER_REPLACEMENT = Pattern.compile("\\{.*?}");
-    private static final Pattern OR_REPLACEMENT = Pattern.compile("[^\\|\\|]*");
+    @SuppressWarnings("Annotator")
+    private static final Pattern OR_REPLACEMENT = Pattern.compile("[^|]*");
 
     /**
      * In this implementation, we grab a formatting string array from a formatting config.
@@ -25,7 +27,7 @@ public class FormattingUtils
      * @param format Formatting string to use
      * @return Formatted message returned
      */
-    public static String format(final String[] format, final Action childReplacementsAction)
+    public static String format(final List<String> format, final Action childReplacementsAction)
     {
         final StringBuilder outputStringBuilder = new StringBuilder();
 

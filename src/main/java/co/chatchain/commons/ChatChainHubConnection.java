@@ -1,33 +1,104 @@
 package co.chatchain.commons;
 
-import co.chatchain.commons.core.entites.messages.*;
-import co.chatchain.commons.core.entites.requests.ClientEventRequest;
-import co.chatchain.commons.core.entites.requests.GenericMessageRequest;
-import co.chatchain.commons.core.entites.requests.UserEventRequest;
-import com.microsoft.signalr.Action1;
+import co.chatchain.commons.core.entities.Client;
+import co.chatchain.commons.core.entities.messages.*;
+import co.chatchain.commons.core.entities.requests.ClientEventRequest;
+import co.chatchain.commons.core.entities.requests.GenericMessageRequest;
+import co.chatchain.commons.core.entities.requests.UserEventRequest;
+import co.chatchain.commons.core.interfaces.cases.*;
+import co.chatchain.commons.interfaces.IAccessTokenResolver;
+import co.chatchain.commons.interfaces.IChatChainHubConnection;
+import co.chatchain.commons.interfaces.IConnectionConfig;
+import co.chatchain.commons.interfaces.ILogger;
+import co.chatchain.commons.queue.MessageConsumer;
+import co.chatchain.commons.queue.MessageSendRequest;
 import com.microsoft.signalr.HubConnection;
 import com.microsoft.signalr.HubConnectionBuilder;
 import com.microsoft.signalr.HubConnectionState;
 import io.reactivex.Single;
+import io.reactivex.subjects.SingleSubject;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
+import javax.inject.Inject;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class ChatChainHubConnection
+@SuppressWarnings({"UnusedReturnValue"})
+public class ChatChainHubConnection implements IChatChainHubConnection
 {
+    /**
+     * SignalR HubConnection instance
+     */
     private HubConnection connection;
-    private AtomicBoolean autoReconnect = new AtomicBoolean(true);
-    private Thread reconnectionThread;
-    private String apiURL;
-    private AccessTokenResolver accessTokenResolver;
-    private List<Action1<ChatChainHubConnection>> onConnectActions = new ArrayList<>();
-    private List<Action1<ChatChainHubConnection>> onConnectActionsOnce = new ArrayList<>();
 
-    public ChatChainHubConnection(final String apiURL, final AccessTokenResolver accessTokenResolver)
+    /**
+     * ConnectionConfig to get HubUrl from.
+     */
+    private final IConnectionConfig connectionConfig;
+
+    /**
+     * AccessTokenResolver to receive accessToken for hub connection.
+     */
+    private final IAccessTokenResolver accessTokenResolver;
+
+    /**
+     * Thread used to allow for connection to Auto Reconnect.
+     */
+    private Thread reconnectionThread;
+
+    /**
+     * AtomicBoolean flag to stop the reconnection thread as needed.
+     */
+    private final AtomicBoolean autoReconnect = new AtomicBoolean(true);
+
+    /**
+     * Linked Queue for the MessageQueue for storing and then sending messages to the Hub.
+     */
+    private final LinkedBlockingQueue<MessageSendRequest> messageQueue = new LinkedBlockingQueue<>();
+
+    /**
+     * Message Consumer thread for sending messages from queue to Hub.
+     */
+    private Thread messageConsumerThread;
+
+    /**
+     * This hubConnection's client.
+     */
+    @Nullable
+    private Client client = null;
+
+    /**
+     * Logger instance given by DI.
+     */
+    private final ILogger logger;
+
+    /**
+     * Use cases given through DI for how to handle hub messages received.
+     */
+    private final IReceiveClientCase receiveClientCase;
+    private final IReceiveClientEventCase receiveClientEventCase;
+    private final IReceiveGenericMessageCase receiveGenericMessageCase;
+    private final IReceiveGroupsCase receiveGroupsCase;
+    private final IReceiveUserEventCase receiveUserEventCase;
+
+    @Inject
+    public ChatChainHubConnection(final IConnectionConfig connectionConfig,
+                                  final IAccessTokenResolver accessTokenResolver,
+                                  final ILogger logger,
+                                  final IReceiveClientCase receiveClientCase,
+                                  final IReceiveClientEventCase receiveClientEventCase,
+                                  final IReceiveGenericMessageCase receiveGenericMessageCase,
+                                  final IReceiveGroupsCase receiveGroupsCase,
+                                  final IReceiveUserEventCase receiveUserEventCase)
     {
-        this.apiURL = apiURL;
+        this.connectionConfig = connectionConfig;
         this.accessTokenResolver = accessTokenResolver;
+        this.logger = logger;
+        this.receiveClientCase = receiveClientCase;
+        this.receiveClientEventCase = receiveClientEventCase;
+        this.receiveGenericMessageCase = receiveGenericMessageCase;
+        this.receiveGroupsCase = receiveGroupsCase;
+        this.receiveUserEventCase = receiveUserEventCase;
     }
 
     private void reconnectionThread()
@@ -41,8 +112,7 @@ public class ChatChainHubConnection
             try
             {
                 Thread.sleep(30000);
-            }
-            catch (InterruptedException e)
+            } catch (InterruptedException e)
             {
                 System.out.println("Problem creating auto reconnection thread: ");
                 e.printStackTrace();
@@ -50,11 +120,13 @@ public class ChatChainHubConnection
         }
     }
 
+    @Override
     public HubConnection getConnection()
     {
         return connection;
     }
 
+    @Override
     public HubConnectionState getConnectionState()
     {
         if (connection != null)
@@ -64,11 +136,13 @@ public class ChatChainHubConnection
         return HubConnectionState.DISCONNECTED;
     }
 
+    @Override
     public void connect()
     {
         connect(true);
     }
 
+    @Override
     public void connect(final boolean blocking)
     {
 
@@ -82,7 +156,7 @@ public class ChatChainHubConnection
             return;
         }
 
-        connection = HubConnectionBuilder.create(apiURL)
+        connection = HubConnectionBuilder.create(connectionConfig.getHubUrl().toString())
                 .withAccessTokenProvider(Single.defer(() -> Single.just(accessToken)))
                 .build();
 
@@ -100,18 +174,19 @@ public class ChatChainHubConnection
     {
         connection.start().blockingAwait();
 
+        if (messageConsumerThread == null || !messageConsumerThread.isAlive())
+        {
+            messageConsumerThread = new Thread(new MessageConsumer(messageQueue, this));
+            messageConsumerThread.start();
+        }
+
         if (connection != null && connection.getConnectionState().equals(HubConnectionState.CONNECTED))
         {
-            for (Action1<ChatChainHubConnection> action : onConnectActions)
-            {
-                action.invoke(this);
-            }
-
-            for (Action1<ChatChainHubConnection> action : onConnectActionsOnce)
-            {
-                action.invoke(this);
-            }
-            onConnectActionsOnce = new ArrayList<>();
+            sendGetClient();
+            connection.on("ReceiveClientEventMessage", receiveClientEventCase::handle, ClientEventMessage.class);
+            connection.on("ReceiveGenericMessage", receiveGenericMessageCase::handle, GenericMessageMessage.class);
+            sendGetGroups();
+            connection.on("ReceiveUserEventMessage", receiveUserEventCase::handle, UserEventMessage.class);
         }
 
         if (reconnectionThread != null)
@@ -134,6 +209,7 @@ public class ChatChainHubConnection
         reconnectionThread.start();
     }
 
+    @Override
     public void disconnect()
     {
         autoReconnect.set(false);
@@ -141,6 +217,7 @@ public class ChatChainHubConnection
         connection = null;
     }
 
+    @Override
     public void reconnect()
     {
         disconnect();
@@ -148,114 +225,85 @@ public class ChatChainHubConnection
         connect();
     }
 
-    /**
-     * This method is for registering things you'd like to happen every time the client connects. good place to put message listeners!
-     * @param callback the lambda you want executed
-     */
-    public void onConnection(Action1<ChatChainHubConnection> callback)
+    @Override
+    public Single<GenericMessageMessage> sendGenericMessage(final GenericMessageRequest request)
     {
-        onConnectActions.add(callback);
-
-        if (connection != null)
+        SingleSubject<GenericMessageMessage> singleSubject = SingleSubject.create();
+        try
         {
-            callback.invoke(this);
+            MessageSendRequest<GenericMessageMessage> sendRequest = new MessageSendRequest<>(conn -> singleSubject.onSuccess(conn.invoke(GenericMessageMessage.class, "SendGenericMessage", request).blockingGet()));
+            messageQueue.put(sendRequest);
         }
+        catch (final InterruptedException e)
+        {
+            singleSubject.onError(e);
+            logger.error("Error adding Generic Message to Queue", e);
+        }
+        return singleSubject;
     }
 
-    public void onGenericMessage(Action1<GenericMessageMessage> action)
+    @Override
+    public Single<ClientEventMessage> sendClientEventMessage(final ClientEventRequest request)
     {
-        if (connection != null)
+        SingleSubject<ClientEventMessage> singleSubject = SingleSubject.create();
+        try
         {
-            connection.on("ReceiveGenericMessage", action, GenericMessageMessage.class);
+            MessageSendRequest<ClientEventMessage> sendRequest = new MessageSendRequest<>(conn -> singleSubject.onSuccess(conn.invoke(ClientEventMessage.class, "SendClientEventMessage", request).blockingGet()));
+            messageQueue.put(sendRequest);
         }
+        catch (final InterruptedException e)
+        {
+            singleSubject.onError(e);
+            logger.error("Error adding Client Event to Queue", e);
+        }
+        return singleSubject;
     }
 
-    public Single<GenericMessageMessage> sendGenericMessage(GenericMessageRequest request)
-    {
-        return sendGenericMessage(request, true);
-    }
-
-    public Single<GenericMessageMessage> sendGenericMessage(GenericMessageRequest request, final boolean sendWhenConnected)
-    {
-        if (connection != null && connection.getConnectionState() == HubConnectionState.CONNECTED)
-        {
-            connection.invoke(GenericMessageMessage.class, "SendGenericMessage", request);
-        }
-        else if (sendWhenConnected)
-        {
-            onConnectActionsOnce.add(connection -> connection.sendGenericMessage(request));
-        }
-        return null;
-    }
-
-    public void onClientEventMessage(Action1<ClientEventMessage> action)
-    {
-        if (connection != null)
-        {
-            connection.on("ReceiveClientEventMessage", action, ClientEventMessage.class);
-        }
-    }
-
-    public Single<ClientEventMessage> sendClientEventMessage(ClientEventRequest request)
-    {
-        return sendClientEventMessage(request, true);
-    }
-
-    public Single<ClientEventMessage> sendClientEventMessage(ClientEventRequest request, final boolean sendWhenConnected)
-    {
-        if (connection != null && connection.getConnectionState() == HubConnectionState.CONNECTED)
-        {
-            return connection.invoke(ClientEventMessage.class, "SendClientEventMessage", request);
-        }
-        else if (sendWhenConnected)
-        {
-            onConnectActionsOnce.add(connection -> connection.sendClientEventMessage(request));
-        }
-        return null;
-    }
-
-    public void onUserEventMessage(Action1<UserEventMessage> action)
-    {
-        if (connection != null)
-        {
-            connection.on("ReceiveUserEventMessage", action, UserEventMessage.class);
-        }
-    }
-
+    @Override
     public Single<UserEventMessage> sendUserEventMessage(UserEventRequest request)
     {
-        return sendUserEventMessage(request, true);
+        SingleSubject<UserEventMessage> singleSubject = SingleSubject.create();
+        try
+        {
+            MessageSendRequest<UserEventMessage> sendRequest = new MessageSendRequest<>(conn -> singleSubject.onSuccess(conn.invoke(UserEventMessage.class, "SendUserEventMessage", request).blockingGet()));
+            messageQueue.put(sendRequest);
+        }
+        catch (final InterruptedException e)
+        {
+            singleSubject.onError(e);
+            logger.error("Error adding User Event to Queue", e);
+        }
+        return singleSubject;
     }
 
-    public Single<UserEventMessage> sendUserEventMessage(UserEventRequest request, final boolean sendWhenConnected)
+    @Override
+    public void sendGetGroups()
     {
         if (connection != null && connection.getConnectionState() == HubConnectionState.CONNECTED)
         {
-            return connection.invoke(UserEventMessage.class, "SendUserEventMessage", request);
+            receiveGroupsCase.handle(connection.invoke(GetGroupsMessage.class, "GetGroups").blockingGet());
         }
-        else if (sendWhenConnected)
-        {
-            onConnectActionsOnce.add(connection -> connection.sendUserEventMessage(request));
-        }
-        return null;
     }
 
-    public Single<GetGroupsMessage> sendGetGroups()
+    @Override
+    public void sendGetClient()
     {
         if (connection != null && connection.getConnectionState() == HubConnectionState.CONNECTED)
         {
-            return connection.invoke(GetGroupsMessage.class, "GetGroups");
+            receiveClientCase.handle(connection.invoke(GetClientMessage.class, "GetClient").blockingGet());
         }
-        return null;
     }
 
-    public Single<GetClientMessage> sendGetClient()
+    @Override
+    @Nullable
+    public Client getClient()
     {
-        if (connection != null && connection.getConnectionState() == HubConnectionState.CONNECTED)
-        {
-            return connection.invoke(GetClientMessage.class, "GetClient");
-        }
-        return null;
+        return client;
     }
 
+    @Override
+    public void setClient(@Nullable final Client client)
+    {
+        this.client = client;
+    }
 }

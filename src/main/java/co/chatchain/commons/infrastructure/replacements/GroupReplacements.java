@@ -1,6 +1,6 @@
 package co.chatchain.commons.infrastructure.replacements;
 
-import co.chatchain.commons.core.entites.Group;
+import co.chatchain.commons.core.entities.Group;
 import co.chatchain.commons.infrastructure.interfaces.replacements.IGroupReplacements;
 import org.jetbrains.annotations.Nullable;
 
@@ -11,8 +11,8 @@ public enum GroupReplacements
     DESCRIPTION("group-description", Group::getDescription),
     OWNER_ID("group-owner-id", Group::getOwnerId);
 
-    final String replacement;
-    final GroupReplacementAction action;
+    private final String replacement;
+    private final GroupReplacementAction action;
 
     GroupReplacements(final String replacement, final GroupReplacementAction action)
     {
@@ -21,7 +21,7 @@ public enum GroupReplacements
     }
 
     @Nullable
-    public String GetReplacementObject(final Group group)
+    private String GetReplacementObject(final Group group)
     {
         if (group == null)
             return null;
@@ -29,7 +29,7 @@ public enum GroupReplacements
         return this.action.invoke(group);
     }
 
-    public String getReplacement()
+    private String getReplacement()
     {
         return replacement;
     }
@@ -40,7 +40,7 @@ public enum GroupReplacements
     }
 
     @Nullable
-    public static GroupReplacements GetFromReplacement(final String replacementString)
+    private static GroupReplacements GetFromReplacement(final String replacementString)
     {
         for (final GroupReplacements groupReplacement : values())
         {

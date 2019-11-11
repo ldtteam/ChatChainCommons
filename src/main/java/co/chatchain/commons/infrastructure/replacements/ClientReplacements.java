@@ -1,6 +1,6 @@
 package co.chatchain.commons.infrastructure.replacements;
 
-import co.chatchain.commons.core.entites.Client;
+import co.chatchain.commons.core.entities.Client;
 import co.chatchain.commons.infrastructure.interfaces.replacements.IClientReplacements;
 import org.jetbrains.annotations.Nullable;
 
@@ -11,8 +11,8 @@ public enum ClientReplacements
     DESCRIPTION("client-description", Client::getDescription),
     OWNER_ID("client-owner-id", Client::getOwnerId);
 
-    final String replacement;
-    final ClientReplacementAction action;
+    private final String replacement;
+    private final ClientReplacementAction action;
 
     ClientReplacements(final String replacement, final ClientReplacementAction action)
     {
@@ -21,7 +21,7 @@ public enum ClientReplacements
     }
 
     @Nullable
-    public String GetReplacementObject(final Client client)
+    private String GetReplacementObject(final Client client)
     {
         if (client == null)
             return null;
@@ -29,7 +29,7 @@ public enum ClientReplacements
         return this.action.invoke(client);
     }
 
-    public String getReplacement()
+    private String getReplacement()
     {
         return replacement;
     }
@@ -40,7 +40,7 @@ public enum ClientReplacements
     }
 
     @Nullable
-    public static ClientReplacements GetFromReplacement(final String replacementString)
+    private static ClientReplacements GetFromReplacement(final String replacementString)
     {
         for (final ClientReplacements clientReplacement : values())
         {

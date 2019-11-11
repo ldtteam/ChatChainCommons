@@ -1,12 +1,13 @@
-package co.chatchain.commons.core.entites.messages;
+package co.chatchain.commons.core.entities.messages;
 
-import co.chatchain.commons.core.entites.Client;
-import co.chatchain.commons.core.entites.ClientUser;
-import co.chatchain.commons.core.entites.Group;
+import co.chatchain.commons.core.entities.Client;
+import co.chatchain.commons.core.entities.ClientUser;
+import co.chatchain.commons.core.entities.Group;
 import co.chatchain.commons.core.interfaces.IMessage;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+@SuppressWarnings("NullableProblems")
 public class GenericMessageMessage implements IMessage
 {
 
