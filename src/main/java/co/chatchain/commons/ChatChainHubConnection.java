@@ -187,6 +187,8 @@ public class ChatChainHubConnection implements IChatChainHubConnection
             connection.on("ReceiveGenericMessage", receiveGenericMessageCase::handle, GenericMessageMessage.class);
             sendGetGroups();
             connection.on("ReceiveUserEventMessage", receiveUserEventCase::handle, UserEventMessage.class);
+
+            sendClientEventMessage(new ClientEventRequest("START", null));
         }
 
         if (reconnectionThread != null)
