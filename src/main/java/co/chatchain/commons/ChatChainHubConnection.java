@@ -227,20 +227,32 @@ public class ChatChainHubConnection implements IChatChainHubConnection
         connect();
     }
 
-    @Override
-    public Single<GenericMessageMessage> sendGenericMessage(final GenericMessageRequest request)
+    private void addSendRequest(MessageSendRequest sendRequest, SingleSubject singleSubject)
     {
-        SingleSubject<GenericMessageMessage> singleSubject = SingleSubject.create();
+        if (getConnectionState().equals(HubConnectionState.CONNECTED) && (messageConsumerThread == null || !messageConsumerThread.isAlive()))
+        {
+            messageConsumerThread = new Thread(new MessageConsumer(messageQueue, this));
+            messageConsumerThread.start();
+        }
+
         try
         {
-            MessageSendRequest<GenericMessageMessage> sendRequest = new MessageSendRequest<>(conn -> singleSubject.onSuccess(conn.invoke(GenericMessageMessage.class, "SendGenericMessage", request).blockingGet()));
             messageQueue.put(sendRequest);
         }
         catch (final InterruptedException e)
         {
             singleSubject.onError(e);
-            logger.error("Error adding Generic Message to Queue", e);
+            logger.error("Error adding Message to Queue", e);
         }
+    }
+
+    @Override
+    public Single<GenericMessageMessage> sendGenericMessage(final GenericMessageRequest request)
+    {
+        SingleSubject<GenericMessageMessage> singleSubject = SingleSubject.create();
+        MessageSendRequest<GenericMessageMessage> sendRequest = new MessageSendRequest<>(conn -> singleSubject.onSuccess(conn.invoke(GenericMessageMessage.class, "SendGenericMessage", request).blockingGet()));
+
+        addSendRequest(sendRequest, singleSubject);
         return singleSubject;
     }
 
@@ -248,16 +260,9 @@ public class ChatChainHubConnection implements IChatChainHubConnection
     public Single<ClientEventMessage> sendClientEventMessage(final ClientEventRequest request)
     {
         SingleSubject<ClientEventMessage> singleSubject = SingleSubject.create();
-        try
-        {
-            MessageSendRequest<ClientEventMessage> sendRequest = new MessageSendRequest<>(conn -> singleSubject.onSuccess(conn.invoke(ClientEventMessage.class, "SendClientEventMessage", request).blockingGet()));
-            messageQueue.put(sendRequest);
-        }
-        catch (final InterruptedException e)
-        {
-            singleSubject.onError(e);
-            logger.error("Error adding Client Event to Queue", e);
-        }
+        MessageSendRequest<ClientEventMessage> sendRequest = new MessageSendRequest<>(conn -> singleSubject.onSuccess(conn.invoke(ClientEventMessage.class, "SendClientEventMessage", request).blockingGet()));
+
+        addSendRequest(sendRequest, singleSubject);
         return singleSubject;
     }
 
@@ -265,16 +270,9 @@ public class ChatChainHubConnection implements IChatChainHubConnection
     public Single<UserEventMessage> sendUserEventMessage(UserEventRequest request)
     {
         SingleSubject<UserEventMessage> singleSubject = SingleSubject.create();
-        try
-        {
-            MessageSendRequest<UserEventMessage> sendRequest = new MessageSendRequest<>(conn -> singleSubject.onSuccess(conn.invoke(UserEventMessage.class, "SendUserEventMessage", request).blockingGet()));
-            messageQueue.put(sendRequest);
-        }
-        catch (final InterruptedException e)
-        {
-            singleSubject.onError(e);
-            logger.error("Error adding User Event to Queue", e);
-        }
+        MessageSendRequest<UserEventMessage> sendRequest = new MessageSendRequest<>(conn -> singleSubject.onSuccess(conn.invoke(UserEventMessage.class, "SendUserEventMessage", request).blockingGet()));
+
+        addSendRequest(sendRequest, singleSubject);
         return singleSubject;
     }
 
