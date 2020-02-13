@@ -18,7 +18,7 @@ apply plugin: 'maven'
 apply plugin: "com.jfrog.artifactory"
 
 group 'co.chatchain'
-version = System.getenv()['BUILD_NUMBER'] != null ? System.getenv()['BUILD_NUMBER'] : System.getenv()['TRAVIS_BUILD_NUMBER']
+version = "feature-stats#12" //System.getenv()['BUILD_NUMBER'] != null ? System.getenv()['BUILD_NUMBER'] : System.getenv()['TRAVIS_BUILD_NUMBER']
 archivesBaseName = 'commons'
 
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = 1.8

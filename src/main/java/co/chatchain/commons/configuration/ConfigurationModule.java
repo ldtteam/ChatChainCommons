@@ -1,21 +1,22 @@
 package co.chatchain.commons.configuration;
 
-import co.chatchain.commons.infrastructure.interfaces.configuration.IClientEventFormattingConfig;
+import co.chatchain.commons.infrastructure.interfaces.configuration.events.IClientEventFormattingConfig;
 import co.chatchain.commons.infrastructure.interfaces.configuration.IFormattingConfig;
 import co.chatchain.commons.infrastructure.interfaces.configuration.IGenericMessageFormattingConfig;
-import co.chatchain.commons.infrastructure.interfaces.configuration.IUserEventFormattingConfig;
+import co.chatchain.commons.infrastructure.interfaces.configuration.events.IUserEventFormattingConfig;
+import co.chatchain.commons.infrastructure.interfaces.configuration.stats.IStatsResponseFormattingConfig;
 import com.google.inject.AbstractModule;
-import ninja.leaping.configurate.gson.GsonConfigurationLoader;
 
-import java.nio.file.Path;
+import java.io.File;
+import java.io.IOException;
 
 public class ConfigurationModule extends AbstractModule
 {
 
-    private final Path formattingConfigPath;
+    private final File formattingConfigPath;
     private final boolean advanced;
 
-    public ConfigurationModule(final Path formattingConfigPath, final boolean advanced)
+    public ConfigurationModule(final File formattingConfigPath, final boolean advanced)
     {
         this.formattingConfigPath = formattingConfigPath;
         this.advanced = advanced;
@@ -24,20 +25,21 @@ public class ConfigurationModule extends AbstractModule
     @Override
     protected void configure()
     {
-        IFormattingConfig formattingConfig;
-        if (advanced)
+        final IFormattingConfig formattingConfig = new FormattingConfig(this.advanced);
+        try
         {
-            formattingConfig = AbstractConfig.getConfig(formattingConfigPath, AdvancedFormattingConfig.class,
-                    GsonConfigurationLoader.builder().setPath(formattingConfigPath).build());
+            formattingConfig.load(this.formattingConfigPath);
         }
-        else
+        catch (final IOException e)
         {
-            formattingConfig = AbstractConfig.getConfig(formattingConfigPath, FormattingConfig.class,
-                    GsonConfigurationLoader.builder().setPath(formattingConfigPath).build());
+            System.out.println("Failed to load Formatting Config with: ");
+            e.printStackTrace();
         }
 
         bind(IClientEventFormattingConfig.class).toInstance(formattingConfig);
         bind(IGenericMessageFormattingConfig.class).toInstance(formattingConfig);
         bind(IUserEventFormattingConfig.class).toInstance(formattingConfig);
+        bind(IStatsResponseFormattingConfig.class).toInstance(formattingConfig);
+        bind(IFormattingConfig.class).toInstance(formattingConfig);
     }
 }

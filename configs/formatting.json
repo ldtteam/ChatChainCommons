@@ -1,0 +1,53 @@
+{
+  "default-formats": {
+    "user-event": {
+      "LOGOUT": [
+        "test[{group-name}] ",
+        "[{client-name}] ",
+        "{client-user-nickname||client-user-name} has logged out"
+      ],
+      "LOGIN": [
+        "[{group-name}] ",
+        "[{client-name}] ",
+        "{client-user-nickname||client-user-name} has logged in"
+      ],
+      "DEATH": [
+        "[{group-name}] ",
+        "[{client-name}] ",
+        "{client-user-nickname||client-user-name} has died"
+      ]
+    },
+    "client-event": {
+      "STOP": [
+        "[{group-name}] ",
+        "{client-name} has disconnected"
+      ],
+      "START": [
+        "[{group-name}] ",
+        "{client-name} has connected"
+      ]
+    },
+    "generic": [
+      "testing[{client-name}] ",
+      "[{client-rank-display}] ",
+      "<{client-user-nickname||client-user-name}>: {message}"
+    ]
+  },
+  "group-overrides": {
+    "sending-group-id": {
+      "formats": {
+        "user-event": {},
+        "client-event": {},
+        "generic": [
+          "testing1234567890[{client-name}] ",
+          "[{client-rank-display}] ",
+          "<{client-user-nickname||client-user-name}>: {message}"
+        ]
+      },
+      "user-overrides": {},
+      "client-overrides": {}
+    }
+  },
+  "user-overrides": {},
+  "client-overrides": {}
+}

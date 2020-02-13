@@ -2,25 +2,39 @@ package co.chatchain.commons;
 
 import co.chatchain.commons.core.entities.Client;
 import co.chatchain.commons.core.entities.messages.*;
-import co.chatchain.commons.core.entities.requests.ClientEventRequest;
+import co.chatchain.commons.core.entities.messages.events.ClientEventMessage;
+import co.chatchain.commons.core.entities.messages.events.UserEventMessage;
+import co.chatchain.commons.core.entities.messages.stats.StatsRequestMessage;
+import co.chatchain.commons.core.entities.messages.stats.StatsResponseMessage;
+import co.chatchain.commons.core.entities.requests.events.ClientEventRequest;
 import co.chatchain.commons.core.entities.requests.GenericMessageRequest;
-import co.chatchain.commons.core.entities.requests.UserEventRequest;
+import co.chatchain.commons.core.entities.requests.events.UserEventRequest;
+import co.chatchain.commons.core.entities.requests.stats.StatsRequestRequest;
+import co.chatchain.commons.core.entities.requests.stats.StatsResponseRequest;
 import co.chatchain.commons.core.interfaces.cases.*;
+import co.chatchain.commons.core.interfaces.cases.events.IReceiveClientEventCase;
+import co.chatchain.commons.core.interfaces.cases.events.IReceiveUserEventCase;
+import co.chatchain.commons.core.interfaces.cases.stats.IReceiveStatsRequestCase;
+import co.chatchain.commons.core.interfaces.cases.stats.IReceiveStatsResponseCase;
 import co.chatchain.commons.interfaces.IAccessTokenResolver;
 import co.chatchain.commons.interfaces.IChatChainHubConnection;
 import co.chatchain.commons.interfaces.IConnectionConfig;
 import co.chatchain.commons.interfaces.ILogger;
 import co.chatchain.commons.queue.MessageConsumer;
 import co.chatchain.commons.queue.MessageSendRequest;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.microsoft.signalr.HubConnection;
 import com.microsoft.signalr.HubConnectionBuilder;
 import com.microsoft.signalr.HubConnectionState;
 import io.reactivex.Single;
 import io.reactivex.subjects.SingleSubject;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @SuppressWarnings({"UnusedReturnValue"})
@@ -57,6 +71,13 @@ public class ChatChainHubConnection implements IChatChainHubConnection
     private final LinkedBlockingQueue<MessageSendRequest> messageQueue = new LinkedBlockingQueue<>();
 
     /**
+     * Cache for the Stats Requests and what a Client may bind them to
+     */
+    private final Cache<String, String> statsRequestCache = CacheBuilder.newBuilder()
+            .expireAfterWrite(10, TimeUnit.MINUTES)
+            .build();
+
+    /**
      * Message Consumer thread for sending messages from queue to Hub.
      */
     private Thread messageConsumerThread;
@@ -75,30 +96,30 @@ public class ChatChainHubConnection implements IChatChainHubConnection
     /**
      * Use cases given through DI for how to handle hub messages received.
      */
-    private final IReceiveClientCase receiveClientCase;
-    private final IReceiveClientEventCase receiveClientEventCase;
     private final IReceiveGenericMessageCase receiveGenericMessageCase;
-    private final IReceiveGroupsCase receiveGroupsCase;
+
+    private final IReceiveClientEventCase receiveClientEventCase;
     private final IReceiveUserEventCase receiveUserEventCase;
 
+    private final IReceiveStatsRequestCase receiveStatsRequestCase;
+    private final IReceiveStatsResponseCase receiveStatsResponseCase;
+
+    private final IReceiveClientCase receiveClientCase;
+    private final IReceiveGroupsCase receiveGroupsCase;
+
     @Inject
-    public ChatChainHubConnection(final IConnectionConfig connectionConfig,
-                                  final IAccessTokenResolver accessTokenResolver,
-                                  final ILogger logger,
-                                  final IReceiveClientCase receiveClientCase,
-                                  final IReceiveClientEventCase receiveClientEventCase,
-                                  final IReceiveGenericMessageCase receiveGenericMessageCase,
-                                  final IReceiveGroupsCase receiveGroupsCase,
-                                  final IReceiveUserEventCase receiveUserEventCase)
+    public ChatChainHubConnection(final IConnectionConfig connectionConfig, final IAccessTokenResolver accessTokenResolver, final ILogger logger, final IReceiveGenericMessageCase receiveGenericMessageCase, final IReceiveClientEventCase receiveClientEventCase, final IReceiveUserEventCase receiveUserEventCase, final IReceiveStatsRequestCase receiveStatsRequestCase, final IReceiveStatsResponseCase receiveStatsResponseCase, final IReceiveClientCase receiveClientCase, final IReceiveGroupsCase receiveGroupsCase)
     {
         this.connectionConfig = connectionConfig;
         this.accessTokenResolver = accessTokenResolver;
         this.logger = logger;
-        this.receiveClientCase = receiveClientCase;
-        this.receiveClientEventCase = receiveClientEventCase;
         this.receiveGenericMessageCase = receiveGenericMessageCase;
-        this.receiveGroupsCase = receiveGroupsCase;
+        this.receiveClientEventCase = receiveClientEventCase;
         this.receiveUserEventCase = receiveUserEventCase;
+        this.receiveStatsRequestCase = receiveStatsRequestCase;
+        this.receiveStatsResponseCase = receiveStatsResponseCase;
+        this.receiveClientCase = receiveClientCase;
+        this.receiveGroupsCase = receiveGroupsCase;
     }
 
     private void reconnectionThread()
@@ -112,7 +133,7 @@ public class ChatChainHubConnection implements IChatChainHubConnection
             try
             {
                 Thread.sleep(30000);
-            } catch (InterruptedException e)
+            } catch (final InterruptedException e)
             {
                 System.out.println("Problem creating auto reconnection thread: ");
                 e.printStackTrace();
@@ -150,7 +171,7 @@ public class ChatChainHubConnection implements IChatChainHubConnection
         try
         {
             accessToken = accessTokenResolver.getAccessToken();
-        } catch (Exception e)
+        } catch (final Exception e)
         {
             System.out.println("Problem with getting access token, please check server availability");
             return;
@@ -182,11 +203,16 @@ public class ChatChainHubConnection implements IChatChainHubConnection
 
         if (connection != null && connection.getConnectionState().equals(HubConnectionState.CONNECTED))
         {
-            sendGetClient();
-            connection.on("ReceiveClientEventMessage", receiveClientEventCase::handle, ClientEventMessage.class);
             connection.on("ReceiveGenericMessage", receiveGenericMessageCase::handle, GenericMessageMessage.class);
-            sendGetGroups();
+
+            connection.on("ReceiveClientEventMessage", receiveClientEventCase::handle, ClientEventMessage.class);
             connection.on("ReceiveUserEventMessage", receiveUserEventCase::handle, UserEventMessage.class);
+
+            connection.on("ReceiveStatsRequest", receiveStatsRequestCase::handle, StatsRequestMessage.class);
+            connection.on("ReceiveStatsResponse", receiveStatsResponseCase::handle, StatsResponseMessage.class);
+
+            sendGetClient();
+            sendGetGroups();
 
             sendClientEventMessage(new ClientEventRequest("START", null));
         }
@@ -199,7 +225,7 @@ public class ChatChainHubConnection implements IChatChainHubConnection
                 try
                 {
                     Thread.sleep(100);
-                } catch (InterruptedException e)
+                } catch (final InterruptedException e)
                 {
                     System.out.println("Problem creating auto reconnection thread: ");
                     e.printStackTrace();
@@ -227,7 +253,7 @@ public class ChatChainHubConnection implements IChatChainHubConnection
         connect();
     }
 
-    private void addSendRequest(MessageSendRequest sendRequest, SingleSubject singleSubject)
+    private void addSendRequest(final MessageSendRequest sendRequest, final SingleSubject singleSubject)
     {
         if (getConnectionState().equals(HubConnectionState.CONNECTED) && (messageConsumerThread == null || !messageConsumerThread.isAlive()))
         {
@@ -249,8 +275,8 @@ public class ChatChainHubConnection implements IChatChainHubConnection
     @Override
     public Single<GenericMessageMessage> sendGenericMessage(final GenericMessageRequest request)
     {
-        SingleSubject<GenericMessageMessage> singleSubject = SingleSubject.create();
-        MessageSendRequest<GenericMessageMessage> sendRequest = new MessageSendRequest<>(conn -> singleSubject.onSuccess(conn.invoke(GenericMessageMessage.class, "SendGenericMessage", request).blockingGet()));
+        final SingleSubject<GenericMessageMessage> singleSubject = SingleSubject.create();
+        final MessageSendRequest<GenericMessageMessage> sendRequest = new MessageSendRequest<>(conn -> singleSubject.onSuccess(conn.invoke(GenericMessageMessage.class, "SendGenericMessage", request).blockingGet()));
 
         addSendRequest(sendRequest, singleSubject);
         return singleSubject;
@@ -259,18 +285,38 @@ public class ChatChainHubConnection implements IChatChainHubConnection
     @Override
     public Single<ClientEventMessage> sendClientEventMessage(final ClientEventRequest request)
     {
-        SingleSubject<ClientEventMessage> singleSubject = SingleSubject.create();
-        MessageSendRequest<ClientEventMessage> sendRequest = new MessageSendRequest<>(conn -> singleSubject.onSuccess(conn.invoke(ClientEventMessage.class, "SendClientEventMessage", request).blockingGet()));
+        final SingleSubject<ClientEventMessage> singleSubject = SingleSubject.create();
+        final MessageSendRequest<ClientEventMessage> sendRequest = new MessageSendRequest<>(conn -> singleSubject.onSuccess(conn.invoke(ClientEventMessage.class, "SendClientEventMessage", request).blockingGet()));
 
         addSendRequest(sendRequest, singleSubject);
         return singleSubject;
     }
 
     @Override
-    public Single<UserEventMessage> sendUserEventMessage(UserEventRequest request)
+    public Single<UserEventMessage> sendUserEventMessage(final UserEventRequest request)
     {
-        SingleSubject<UserEventMessage> singleSubject = SingleSubject.create();
-        MessageSendRequest<UserEventMessage> sendRequest = new MessageSendRequest<>(conn -> singleSubject.onSuccess(conn.invoke(UserEventMessage.class, "SendUserEventMessage", request).blockingGet()));
+        final SingleSubject<UserEventMessage> singleSubject = SingleSubject.create();
+        final MessageSendRequest<UserEventMessage> sendRequest = new MessageSendRequest<>(conn -> singleSubject.onSuccess(conn.invoke(UserEventMessage.class, "SendUserEventMessage", request).blockingGet()));
+
+        addSendRequest(sendRequest, singleSubject);
+        return singleSubject;
+    }
+
+    @Override
+    public Single<StatsRequestMessage> sendStatsRequestMessage(final StatsRequestRequest request)
+    {
+        final SingleSubject<StatsRequestMessage> singleSubject = SingleSubject.create();
+        final MessageSendRequest<StatsRequestMessage> sendRequest = new MessageSendRequest<>(conn -> singleSubject.onSuccess(conn.invoke(StatsRequestMessage.class, "SendStatsRequest", request).blockingGet()));
+    
+        addSendRequest(sendRequest, singleSubject);
+        return singleSubject;
+    }
+
+    @Override
+    public Single<StatsResponseMessage> sendStatsResponseMessage(final StatsResponseRequest request)
+    {
+        final SingleSubject<StatsResponseMessage> singleSubject = SingleSubject.create();
+        final MessageSendRequest<StatsResponseMessage> sendRequest = new MessageSendRequest<>(conn -> singleSubject.onSuccess(conn.invoke(StatsResponseMessage.class, "SendStatsResponse", request).blockingGet()));
 
         addSendRequest(sendRequest, singleSubject);
         return singleSubject;
@@ -305,5 +351,18 @@ public class ChatChainHubConnection implements IChatChainHubConnection
     public void setClient(@Nullable final Client client)
     {
         this.client = client;
+    }
+
+    @Override
+    public void addStatsRequest(@NotNull final String requestId, @NotNull final String responseLocation)
+    {
+        this.statsRequestCache.put(requestId, responseLocation);
+    }
+
+    @Nullable
+    @Override
+    public String getStatsRequest(@NotNull final String requestId)
+    {
+        return this.statsRequestCache.getIfPresent(requestId);
     }
 }

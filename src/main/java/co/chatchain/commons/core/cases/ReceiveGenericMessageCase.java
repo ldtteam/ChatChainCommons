@@ -13,7 +13,7 @@ public class ReceiveGenericMessageCase implements IReceiveGenericMessageCase
     private final IGenericMessageFormatter genericMessageFormatter;
 
     @Inject
-    public ReceiveGenericMessageCase(IMessageSender messageSender, IGenericMessageFormatter genericMessageFormatter)
+    public ReceiveGenericMessageCase(final IMessageSender messageSender, final IGenericMessageFormatter genericMessageFormatter)
     {
         this.messageSender = messageSender;
         this.genericMessageFormatter = genericMessageFormatter;
