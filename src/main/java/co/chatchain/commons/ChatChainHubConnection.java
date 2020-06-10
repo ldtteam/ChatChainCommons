@@ -146,19 +146,18 @@ public class ChatChainHubConnection implements IChatChainHubConnection
     public void connect(final boolean blocking)
     {
 
-        final String accessToken;
-        try
-        {
-            accessToken = accessTokenResolver.getAccessToken();
-        } catch (Exception e)
-        {
-            System.out.println("Problem with getting access token, please check server availability");
-            return;
-        }
-
         connection = HubConnectionBuilder.create(connectionConfig.getHubUrl().toString())
-                .withAccessTokenProvider(Single.defer(() -> Single.just(accessToken)))
-                .build();
+                       .withAccessTokenProvider(Single.defer(() -> {
+                           try
+                           {
+                               return Single.just(accessTokenResolver.getAccessToken());
+                           } catch (final Exception e)
+                           {
+                               System.out.println("Problem with getting access token, please check server availability");
+                               throw e;
+                           }
+                       }))
+                       .build();
 
         if (blocking)
         {
