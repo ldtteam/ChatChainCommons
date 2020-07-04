@@ -29,6 +29,7 @@ import com.microsoft.signalr.HubConnectionBuilder;
 import com.microsoft.signalr.HubConnectionState;
 import io.reactivex.Single;
 import io.reactivex.subjects.SingleSubject;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;

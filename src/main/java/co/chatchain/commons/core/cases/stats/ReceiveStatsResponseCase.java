@@ -10,9 +10,9 @@ import javax.inject.Inject;
 
 public class ReceiveStatsResponseCase implements IReceiveStatsResponseCase
 {
-    private final IChatChainHubConnection chatChainHubConnection;
-    private final IMessageSender messageSender;
-    private final IStatsResponseFormatter statsResponseFormatter;
+    protected final IChatChainHubConnection chatChainHubConnection;
+    protected final IMessageSender messageSender;
+    protected final IStatsResponseFormatter statsResponseFormatter;
 
     @Inject
     public ReceiveStatsResponseCase(final IChatChainHubConnection chatChainHubConnection, final IMessageSender messageSender, final IStatsResponseFormatter statsResponseFormatter)
