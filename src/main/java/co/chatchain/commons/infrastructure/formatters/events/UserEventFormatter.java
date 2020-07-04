@@ -1,9 +1,9 @@
-package co.chatchain.commons.infrastructure.formatters;
+package co.chatchain.commons.infrastructure.formatters.events;
 
 import co.chatchain.commons.core.entities.ClientRank;
-import co.chatchain.commons.core.entities.messages.UserEventMessage;
-import co.chatchain.commons.core.interfaces.formatters.IUserEventFormatter;
-import co.chatchain.commons.infrastructure.interfaces.configuration.IUserEventFormattingConfig;
+import co.chatchain.commons.core.entities.messages.events.UserEventMessage;
+import co.chatchain.commons.core.interfaces.formatters.events.IUserEventFormatter;
+import co.chatchain.commons.infrastructure.interfaces.configuration.events.IUserEventFormattingConfig;
 import co.chatchain.commons.infrastructure.interfaces.replacements.IClientRankReplacements;
 import co.chatchain.commons.infrastructure.interfaces.replacements.IClientReplacements;
 import co.chatchain.commons.infrastructure.interfaces.replacements.IClientUserReplacements;
@@ -38,7 +38,7 @@ public class UserEventFormatter implements IUserEventFormatter
         return FormattingUtils.format(userEventFormattingConfig.getUserEventFormattingString(message), replacementString -> childReplacements(replacementString, message));
     }
 
-    private String childReplacements(final String replacementString, UserEventMessage message)
+    private String childReplacements(final String replacementString, final UserEventMessage message)
     {
         String returnString = groupReplacements.getReplacementObject(message.getGroup(), replacementString);
         if (returnString != null)

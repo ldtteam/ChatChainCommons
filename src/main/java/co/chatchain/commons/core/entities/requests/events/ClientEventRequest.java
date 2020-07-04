@@ -1,4 +1,4 @@
-package co.chatchain.commons.core.entities.requests;
+package co.chatchain.commons.core.entities.requests.events;
 
 import co.chatchain.commons.core.interfaces.IRequest;
 import org.jetbrains.annotations.Nullable;
@@ -7,9 +7,9 @@ import java.util.Map;
 
 public class ClientEventRequest implements IRequest
 {
-
     @Nullable
     private String event;
+
     @Nullable
     private Map<String, String> EventData;
 

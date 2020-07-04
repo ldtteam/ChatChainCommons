@@ -1,4 +1,4 @@
-package co.chatchain.commons.core.entities.requests;
+package co.chatchain.commons.core.entities.requests.events;
 
 import co.chatchain.commons.core.entities.ClientUser;
 import org.jetbrains.annotations.Nullable;

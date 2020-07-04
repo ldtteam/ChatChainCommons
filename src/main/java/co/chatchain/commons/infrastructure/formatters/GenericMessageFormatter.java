@@ -37,7 +37,7 @@ public class GenericMessageFormatter implements IGenericMessageFormatter
         return FormattingUtils.format(genericMessageFormattingConfig.getGenericMessageFormattingString(message), replacementString -> childReplacements(replacementString, message));
     }
 
-    private String childReplacements(final String replacementString, GenericMessageMessage message)
+    private String childReplacements(final String replacementString, final GenericMessageMessage message)
     {
         String returnString = groupReplacements.getReplacementObject(message.getGroup(), replacementString);
         if (returnString != null)

@@ -1,9 +1,9 @@
-package co.chatchain.commons.core.cases;
+package co.chatchain.commons.core.cases.events;
 
-import co.chatchain.commons.core.entities.messages.ClientEventMessage;
+import co.chatchain.commons.core.entities.messages.events.ClientEventMessage;
 import co.chatchain.commons.core.interfaces.IMessageSender;
-import co.chatchain.commons.core.interfaces.cases.IReceiveClientEventCase;
-import co.chatchain.commons.core.interfaces.formatters.IClientEventFormatter;
+import co.chatchain.commons.core.interfaces.cases.events.IReceiveClientEventCase;
+import co.chatchain.commons.core.interfaces.formatters.events.IClientEventFormatter;
 
 import javax.inject.Inject;
 
@@ -13,7 +13,7 @@ public class ReceiveClientEventCase implements IReceiveClientEventCase
     private final IClientEventFormatter clientEventFormatter;
 
     @Inject
-    public ReceiveClientEventCase(IMessageSender messageSender, IClientEventFormatter clientEventFormatter)
+    public ReceiveClientEventCase(final IMessageSender messageSender, final IClientEventFormatter clientEventFormatter)
     {
         this.messageSender = messageSender;
         this.clientEventFormatter = clientEventFormatter;

@@ -28,7 +28,7 @@ public class MessageConsumer implements Runnable
                 final MessageSendRequest sendRequest = queue.take();
                 sendRequest.getSendAction().invoke(connection.getConnection());
             }
-            catch (InterruptedException e)
+            catch (final InterruptedException e)
             {
                 e.printStackTrace();
             }

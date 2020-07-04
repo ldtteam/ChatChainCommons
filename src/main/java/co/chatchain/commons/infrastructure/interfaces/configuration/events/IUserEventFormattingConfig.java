@@ -1,6 +1,6 @@
-package co.chatchain.commons.infrastructure.interfaces.configuration;
+package co.chatchain.commons.infrastructure.interfaces.configuration.events;
 
-import co.chatchain.commons.core.entities.messages.UserEventMessage;
+import co.chatchain.commons.core.entities.messages.events.UserEventMessage;
 
 import java.util.List;
 

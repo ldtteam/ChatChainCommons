@@ -31,7 +31,7 @@ public class FormattingUtils
     {
         final StringBuilder outputStringBuilder = new StringBuilder();
 
-        for (String formatSection : format)
+        for (final String formatSection : format)
         {
             final String[] replacementSections = formatSection.split(MOTHER_REPLACEMENT.pattern());
             final Matcher motherMatcher = MOTHER_REPLACEMENT.matcher(formatSection);
@@ -79,7 +79,7 @@ public class FormattingUtils
 
         while (childMatcher.find())
         {
-            String matchString = childMatcher.group();
+            final String matchString = childMatcher.group();
 
             if (!matchString.equals(""))
             {

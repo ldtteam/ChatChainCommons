@@ -20,7 +20,7 @@ public class AccessTokenResolver implements IAccessTokenResolver
     private final IConnectionConfig connectionConfig;
 
     @Inject
-    public AccessTokenResolver(IConnectionConfig connectionConfig)
+    public AccessTokenResolver(final IConnectionConfig connectionConfig)
     {
         this.connectionConfig = connectionConfig;
     }
@@ -28,33 +28,33 @@ public class AccessTokenResolver implements IAccessTokenResolver
     @Override
     public String getAccessToken() throws IOException
     {
-        URLConnection con = connectionConfig.getIdentityUrl().openConnection();
-        HttpURLConnection http = (HttpURLConnection) con;
+        final URLConnection con = connectionConfig.getIdentityUrl().openConnection();
+        final HttpURLConnection http = (HttpURLConnection) con;
         http.setRequestMethod("POST");
         http.setDoOutput(true);
 
-        Map<String, String> arguments = new HashMap<>();
+        final Map<String, String> arguments = new HashMap<>();
         arguments.put("client_id", connectionConfig.getClientId());
         arguments.put("client_secret", connectionConfig.getClientSecret());
         arguments.put("grant_type", "client_credentials");
-        StringJoiner sj = new StringJoiner("&");
-        for (Map.Entry<String, String> entry : arguments.entrySet())
+        final StringJoiner sj = new StringJoiner("&");
+        for (final Map.Entry<String, String> entry : arguments.entrySet())
         {
             sj.add(URLEncoder.encode(entry.getKey(), "UTF-8") + "=" + URLEncoder.encode(entry.getValue(), "UTF-8"));
         }
-        byte[] out = sj.toString().getBytes(StandardCharsets.UTF_8);
-        int length = out.length;
+        final byte[] out = sj.toString().getBytes(StandardCharsets.UTF_8);
+        final int length = out.length;
         http.setFixedLengthStreamingMode(length);
         http.connect();
-        try (OutputStream os = http.getOutputStream())
+        try (final OutputStream os = http.getOutputStream())
         {
             os.write(out);
         }
 
-        Scanner s = new Scanner(http.getInputStream()).useDelimiter("\\A");
-        String output = s.hasNext() ? s.next() : "";
+        final Scanner s = new Scanner(http.getInputStream()).useDelimiter("\\A");
+        final String output = s.hasNext() ? s.next() : "";
 
-        JSONObject jsonObject = new JSONObject(output);
+        final JSONObject jsonObject = new JSONObject(output);
 
         return jsonObject.getString("access_token");
     }
