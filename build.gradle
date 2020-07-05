@@ -15,7 +15,6 @@ plugins {
 apply plugin: 'maven-publish'
 apply plugin: 'idea'
 apply plugin: 'maven'
-apply plugin: "com.jfrog.artifactory"
 
 group 'co.chatchain'
 version = System.getenv()['BUILD_NUMBER'] != null ? System.getenv()['BUILD_NUMBER'] : System.getenv()['TRAVIS_BUILD_NUMBER']
@@ -113,18 +112,6 @@ publishing {
                     url = 'https://github.com/ldtteam/ChatChainCommons'
                 }
             }
-        }
-    }
-}
-
-//Notify artifactory of what to publish.
-artifactory {
-    publish {
-        defaults {
-            publications('maven')
-            publishBuildInfo = true   //Publish build-info to Artifactory (true by default)
-            publishArtifacts = true   //Publish artifacts to Artifactory (true by default)
-            publishPom = true   //Publish generated POM files to Artifactory (true by default).
         }
     }
 }
